@@ -43,10 +43,14 @@
           # ./modules/disko/luks.nix
           disko.nixosModules.disko
           {
-            nix.settings.experimental-features = [
-              "nix-command"
-              "flakes"
-            ];
+            nix.settings = {
+              experimental-features = [
+                "nix-command"
+                "flakes"
+              ];
+              http-connections = 50;
+              max-substitution-jobs = 32;
+            };
           }
           # home-manager integration
           home-manager.nixosModules.home-manager
