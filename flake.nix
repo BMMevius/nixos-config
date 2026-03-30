@@ -38,6 +38,8 @@
           ./modules/nixos/boot.nix
           ./modules/graphics/gtx970.nix
           ./modules/nixos/kde.nix
+          ./modules/nixos/docker.nix
+          ./modules/nixos/docker-gpu.nix
           # ./modules/disko/luks.nix
           disko.nixosModules.disko
           {
