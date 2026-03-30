@@ -58,5 +58,7 @@
           }
         ];
       };
+
+      packages.x86_64-linux.default = self.nixosConfigurations.desktop.config.system.build.toplevel;
     };
 }
