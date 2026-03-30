@@ -40,6 +40,7 @@
           ./modules/nixos/kde.nix
           ./modules/nixos/docker.nix
           ./modules/nixos/docker-gpu.nix
+          ./modules/nixos/steam.nix
           # ./modules/disko/luks.nix
           disko.nixosModules.disko
           {
