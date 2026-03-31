@@ -41,18 +41,9 @@
           ./modules/nixos/docker.nix
           ./modules/nixos/docker-gpu.nix
           ./modules/nixos/steam.nix
+          ./modules/nixos/common.nix
           # ./modules/disko/luks.nix
           disko.nixosModules.disko
-          {
-            nix.settings = {
-              experimental-features = [
-                "nix-command"
-                "flakes"
-              ];
-              http-connections = 50;
-              max-substitution-jobs = 32;
-            };
-          }
           # home-manager integration
           home-manager.nixosModules.home-manager
           {
