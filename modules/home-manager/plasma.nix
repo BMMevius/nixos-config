@@ -10,6 +10,9 @@
       lookAndFeel = "org.kde.breezedark.desktop";
     };
 
+    # NumLock on at startup
+    input.keyboard.numlockOnStartup = "on";
+
     # Power management
     powerdevil = {
       AC = {
