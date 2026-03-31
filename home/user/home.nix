@@ -7,6 +7,7 @@
     ../../modules/home-manager/git.nix
     ../../modules/home-manager/ktorrent.nix
     ../../modules/home-manager/office.nix
+    ../../modules/home-manager/openboard.nix
     ../../modules/home-manager/plasma.nix
     ../../modules/home-manager/signal.nix
     ../../modules/home-manager/strawberry.nix
