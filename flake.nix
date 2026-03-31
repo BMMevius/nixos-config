@@ -57,6 +57,31 @@
         ];
       };
 
+      nixosConfigurations.work-laptop = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./hosts/work-laptop/configuration.nix
+          ./modules/nixos/boot.nix
+          ./modules/nixos/kde.nix
+          ./modules/nixos/docker.nix
+          ./modules/nixos/docker-gpu.nix
+          ./modules/nixos/steam.nix
+          ./modules/nixos/common.nix
+          # ./modules/disko/luks.nix
+          disko.nixosModules.disko
+          # home-manager integration
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.bastiaan = import ./home/user/home.nix;
+            home-manager.sharedModules = [
+              plasma-manager.homeModules.plasma-manager
+            ];
+          }
+        ];
+      };
+
       packages.x86_64-linux.default = self.nixosConfigurations.desktop.config.system.build.toplevel;
     };
 }
