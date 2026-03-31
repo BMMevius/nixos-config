@@ -58,7 +58,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.bastiaan = import ./home/bastiaan/home.nix;
+            home-manager.users.bastiaan = import ./home/user/home.nix;
             home-manager.sharedModules = [
               plasma-manager.homeModules.plasma-manager
             ];
