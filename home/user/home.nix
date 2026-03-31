@@ -3,6 +3,7 @@
 {
   imports = [
     ../../modules/home-manager/fish.nix
+    ../../modules/home-manager/filelight.nix
     ../../modules/home-manager/fonts.nix
     ../../modules/home-manager/git.nix
     ../../modules/home-manager/ktorrent.nix
