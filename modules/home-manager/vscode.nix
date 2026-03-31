@@ -11,10 +11,12 @@
       ms-vscode-remote.remote-ssh
       github.copilot
       github.copilot-chat
+      mkhl.shfmt
     ];
   };
 
   home.packages = with pkgs; [
     nixfmt
+    shfmt
   ];
 }
