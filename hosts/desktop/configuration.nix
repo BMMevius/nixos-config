@@ -97,6 +97,52 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # NTFS support
+  boot.supportedFilesystems = [ "ntfs" ];
+
+  # Windows Dynamic Disk (spanned volume across 2x 2.7T Seagate ST3000DM008)
+  environment.systemPackages = [
+    pkgs.ldmtool
+    pkgs.ntfs3g
+  ];
+
+  # Activate LDM volumes and mount at boot (non-blocking)
+  systemd.services.ldm-storage = {
+    description = "Activate and mount Windows Dynamic Disk spanned volume";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-udev-settle.service" ];
+    wants = [ "systemd-udev-settle.service" ];
+    path = [
+      pkgs.ldmtool
+      pkgs.ntfs3g
+      pkgs.util-linux
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "ldm-mount" ''
+        set -e
+        ldmtool create all
+        sleep 2
+
+        LDM_DEV="/dev/mapper/ldm_vol_PC-BASTIAAN-Dg0_Volume1"
+        if [ ! -e "$LDM_DEV" ]; then
+          echo "LDM volume not found at $LDM_DEV, skipping mount"
+          exit 0
+        fi
+
+        mkdir -p /mnt/storage
+        if ! mountpoint -q /mnt/storage; then
+          mount -t ntfs -o uid=1000,gid=100,dmask=022,fmask=133 "$LDM_DEV" /mnt/storage
+          echo "Mounted $LDM_DEV at /mnt/storage"
+        fi
+      '';
+      ExecStop = pkgs.writeShellScript "ldm-umount" ''
+        umount /mnt/storage 2>/dev/null || true
+      '';
+    };
+  };
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;

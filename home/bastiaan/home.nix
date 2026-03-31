@@ -9,6 +9,7 @@
     ../../modules/home-manager/office.nix
     ../../modules/home-manager/plasma.nix
     ../../modules/home-manager/signal.nix
+    ../../modules/home-manager/strawberry.nix
     ../../modules/home-manager/vscode.nix
     ../../modules/home-manager/vlc.nix
     ../../modules/home-manager/winboat.nix
