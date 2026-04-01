@@ -4,10 +4,15 @@
 
 { config, pkgs, ... }:
 
+let
+  storageMountPoint = config.bastiaan.storage.mountPoint;
+in
+
 {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    ./storage.nix
   ];
 
   # Use latest kernel.
@@ -131,14 +136,14 @@
           exit 0
         fi
 
-        mkdir -p /mnt/storage
-        if ! mountpoint -q /mnt/storage; then
-          mount -t ntfs -o uid=1000,gid=100,dmask=022,fmask=133 "$LDM_DEV" /mnt/storage
-          echo "Mounted $LDM_DEV at /mnt/storage"
+        mkdir -p ${storageMountPoint}
+        if ! mountpoint -q ${storageMountPoint}; then
+          mount -t ntfs -o uid=1000,gid=100,dmask=022,fmask=133 "$LDM_DEV" ${storageMountPoint}
+          echo "Mounted $LDM_DEV at ${storageMountPoint}"
         fi
       '';
       ExecStop = pkgs.writeShellScript "ldm-umount" ''
-        umount /mnt/storage 2>/dev/null || true
+        umount ${storageMountPoint} 2>/dev/null || true
       '';
     };
   };
