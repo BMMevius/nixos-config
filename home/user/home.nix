@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, osConfig, ... }:
 
 {
   imports = [
@@ -16,6 +16,8 @@
     ../../modules/home-manager/vscode.nix
     ../../modules/home-manager/vlc.nix
     ../../modules/home-manager/winboat.nix
+  ] ++ lib.optionals (osConfig.networking.hostName == "desktop") [
+    ../../hosts/desktop/display-configuration.nix
   ];
 
   home.username = "bastiaan";
