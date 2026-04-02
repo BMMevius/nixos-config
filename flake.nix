@@ -42,7 +42,7 @@
           ./modules/nixos/docker-gpu.nix
           ./modules/nixos/steam.nix
           ./modules/nixos/common.nix
-          # ./modules/disko/luks.nix
+          ./modules/disko/luks.nix
           disko.nixosModules.disko
           # home-manager integration
           home-manager.nixosModules.home-manager

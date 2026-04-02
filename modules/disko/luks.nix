@@ -22,10 +22,10 @@
         };
 
         swap = {
-          size = "34G";  # match your actual swap size
+          size = "34G";
           content = {
             type = "luks";
-            name = "cryptswap";  # your actual UUID
+            name = "cryptswap";
             content = {
               type = "swap";
             };
