@@ -3,7 +3,7 @@
 {
   disko.devices.disk.main = {
     type = "disk";
-    device = "/dev/disk/by-id/ata-ST3000DM008-2DM166_Z5051QPN";
+    device = "/dev/disk/by-id/nvme-WDS100T1X0E-00AFY0_211417442405";
 
     content = {
       type = "gpt";
@@ -25,7 +25,7 @@
           size = "34G";  # match your actual swap size
           content = {
             type = "luks";
-            name = "luks-ed6165ce-68f1-4c99-b2fd-1875a5f07219";  # your actual UUID
+            name = "cryptswap";  # your actual UUID
             content = {
               type = "swap";
             };
@@ -37,11 +37,11 @@
 
           content = {
             type = "luks";
-            name = "luks-a02978f8-166b-4d7a-8052-a08b4b1ae82c";
+            name = "cryptroot";
             settings.allowDiscards = true;
             content = {
               type = "filesystem";
-              format = "ext4";
+              format = "btrfs";
               mountpoint = "/";
             };
           };
