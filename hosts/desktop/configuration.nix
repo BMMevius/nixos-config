@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   storageMountPoint = config.bastiaan.storage.mountPoint;
@@ -11,15 +11,20 @@ in
 {
   imports = [
     # Include the results of the hardware scan.
-    ./hardware-configuration.nix
     ./storage.nix
   ];
 
+
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-intel" ];
+  boot.extraModulePackages = [ ];
+
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
-
-  boot.initrd.luks.devices."luks-ed6165ce-68f1-4c99-b2fd-1875a5f07219".device =
-    "/dev/disk/by-uuid/ed6165ce-68f1-4c99-b2fd-1875a5f07219";
   networking.hostName = "desktop"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
