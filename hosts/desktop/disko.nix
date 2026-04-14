@@ -21,28 +21,37 @@
           };
         };
 
-        swap = {
-          size = "34G";
-          content = {
-            type = "luks";
-            name = "cryptswap";
-            content = {
-              type = "swap";
-            };
-          };
-        };
-
         luks = {
           size = "100%";
 
           content = {
             type = "luks";
             name = "cryptroot";
-            settings.allowDiscards = true;
+            passwordFile = "/tmp/secret.key";
+            settings = {
+              allowDiscards = true;
+            };
             content = {
-              type = "filesystem";
-              format = "btrfs";
-              mountpoint = "/";
+              type = "btrfs";
+              extraArgs = [ "-f" ];
+              subvolumes = {
+                "/root" = {
+                  mountpoint = "/";
+                  mountOptions = [ "compress=zstd" "noatime" ];
+                };
+                "/home" = {
+                  mountpoint = "/home";
+                  mountOptions = [ "compress=zstd" "noatime" ];
+                };
+                "/nix" = {
+                  mountpoint = "/nix";
+                  mountOptions = [ "compress=zstd" "noatime" ];
+                };
+                "/swap" = {
+                  mountpoint = "/swap";
+                  swap.swapfile.size = "34G";
+                };
+              };
             };
           };
         };
