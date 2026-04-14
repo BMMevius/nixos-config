@@ -58,4 +58,14 @@
       };
     };
   };
+
+  # Disko does not set neededForBoot for btrfs subvolumes.
+  # The "/" and "/nix" mountpoints are automatically detected as needed for boot
+  # by NixOS (via utils.fsNeededForBoot), but we explicitly ensure all critical
+  # subvolumes are marked, which adds "x-initrd.mount" to their fstab options
+  # so systemd initrd mounts them at /sysroot/* before switch-root.
+  fileSystems."/".neededForBoot = true;
+  fileSystems."/nix".neededForBoot = true;
+  fileSystems."/home".neededForBoot = true;
+  fileSystems."/swap".neededForBoot = true;
 }

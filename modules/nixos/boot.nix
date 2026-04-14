@@ -7,6 +7,9 @@
   # Use systemd in initrd (required for LUKS + disko + Plymouth)
   boot.initrd.systemd.enable = true;
 
+  # Ensure cryptsetup and btrfs are available in the initrd
+  boot.initrd.availableKernelModules = [ "dm_mod" "dm_crypt" ];
+
   # Plymouth splash screen (shows during LUKS decryption)
   boot.plymouth = {
     enable = true;
