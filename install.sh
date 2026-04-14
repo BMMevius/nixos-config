@@ -15,7 +15,7 @@ while [[ $# -gt 0 ]]; do
 		shift 2
 		;;
 	*)
-		echo "Usage: $0 --password <path> --host <name>"
+		echo "Usage: $0 --password <password> --host <name>"
 		exit 1
 		;;
 	esac
