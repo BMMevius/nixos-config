@@ -40,6 +40,7 @@
           ./modules/nixos/boot.nix
           ./modules/graphics/gtx970.nix
           ./modules/nixos/kde.nix
+          ./modules/nixos/l2tp-vpn.nix
           ./modules/nixos/docker.nix
           ./modules/nixos/docker-gpu.nix
           ./modules/nixos/steam.nix
@@ -71,6 +72,7 @@
           ./hosts/work-laptop/configuration.nix
           ./modules/nixos/boot.nix
           ./modules/nixos/kde.nix
+          ./modules/nixos/l2tp-vpn.nix
           ./modules/nixos/docker.nix
           ./modules/nixos/docker-gpu.nix
           ./modules/nixos/steam.nix
