@@ -31,17 +31,6 @@
       ...
     }:
     {
-      nixosConfigurations.desktop-minimal = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          ./hosts/desktop/configuration.nix
-          ./modules/nixos/boot.nix
-          ./modules/nixos/kde.nix
-          ./modules/nixos/common.nix
-          ./hosts/desktop/disko.nix
-          disko.nixosModules.disko
-        ];
-      };
       nixosConfigurations.desktop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
