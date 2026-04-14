@@ -4,6 +4,9 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Use systemd in initrd (required for LUKS + disko + Plymouth)
+  boot.initrd.systemd.enable = true;
+
   # Plymouth splash screen (shows during LUKS decryption)
   boot.plymouth = {
     enable = true;
@@ -16,8 +19,6 @@
   boot.kernelParams = [
     "quiet"
     "splash"
-    "rd.systemd.show_status=false"
-    "rd.udev.log_level=3"
     "udev.log_level=3"
   ];
 }
