@@ -1,10 +1,10 @@
-{ config, pkgs, ... }:
+{ config, pkgs, pkgs-unstable, ... }:
 {
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode.fhs;
+    package = pkgs-unstable.vscode.fhs;
     mutableExtensionsDir = true;
-    profiles.default.extensions = with pkgs.vscode-extensions; [
+    profiles.default.extensions = with pkgs-unstable.vscode-extensions; [
       jnoortheen.nix-ide
       ms-azuretools.vscode-docker
       ms-vscode-remote.remote-containers

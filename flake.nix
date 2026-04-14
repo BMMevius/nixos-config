@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
@@ -25,6 +26,7 @@
     {
       self,
       nixpkgs,
+      nixpkgs-unstable,
       home-manager,
       disko,
       plasma-manager,
@@ -50,6 +52,12 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.bastiaan = import ./home/user/home.nix;
+            home-manager.extraSpecialArgs = {
+              pkgs-unstable = import nixpkgs-unstable {
+                system = "x86_64-linux";
+                config.allowUnfree = true;
+              };
+            };
             home-manager.sharedModules = [
               plasma-manager.homeModules.plasma-manager
             ];
@@ -75,6 +83,12 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.bastiaan = import ./home/user/home.nix;
+            home-manager.extraSpecialArgs = {
+              pkgs-unstable = import nixpkgs-unstable {
+                system = "x86_64-linux";
+                config.allowUnfree = true;
+              };
+            };
             home-manager.sharedModules = [
               plasma-manager.homeModules.plasma-manager
             ];
