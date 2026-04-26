@@ -2,7 +2,12 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   storageMountPoint = config.bastiaan.storage.mountPoint;
@@ -14,8 +19,16 @@ in
     ./storage.nix
   ];
 
-
-  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usb_storage" "usbhid" "sd_mod" "sr_mod" "btrfs" ];
+  boot.initrd.availableKernelModules = [
+    "xhci_pci"
+    "ahci"
+    "nvme"
+    "usb_storage"
+    "usbhid"
+    "sd_mod"
+    "sr_mod"
+    "btrfs"
+  ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
@@ -63,6 +76,14 @@ in
     variant = "";
   };
 
+  services.displayManager = {
+    autoLogin = {
+      enable = true;
+      user = "bastiaan";
+    };
+    defaultSession = "plasma";
+  };
+
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
@@ -107,51 +128,22 @@ in
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # NTFS support
-  boot.supportedFilesystems = [ "ntfs" ];
+  networking.hostId = "d63381b7";
+  boot.supportedFilesystems = [
+    "ntfs"
+    "zfs"
+  ];
+  boot.zfs.extraPools = [ "storage" ];
+  fileSystems.${storageMountPoint} = {
+    device = "storage";
+    fsType = "zfs";
+  };
 
   # Windows Dynamic Disk (spanned volume across 2x 2.7T Seagate ST3000DM008)
   environment.systemPackages = [
-    pkgs.ldmtool
     pkgs.ntfs3g
+    pkgs.zfs
   ];
-
-  # Activate LDM volumes and mount at boot (non-blocking)
-  systemd.services.ldm-storage = {
-    description = "Activate and mount Windows Dynamic Disk spanned volume";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "systemd-udev-settle.service" ];
-    wants = [ "systemd-udev-settle.service" ];
-    path = [
-      pkgs.ldmtool
-      pkgs.ntfs3g
-      pkgs.util-linux
-    ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = pkgs.writeShellScript "ldm-mount" ''
-        set -e
-        ldmtool create all
-        sleep 2
-
-        LDM_DEV="/dev/mapper/ldm_vol_PC-BASTIAAN-Dg0_Volume1"
-        if [ ! -e "$LDM_DEV" ]; then
-          echo "LDM volume not found at $LDM_DEV, skipping mount"
-          exit 0
-        fi
-
-        mkdir -p ${storageMountPoint}
-        if ! mountpoint -q ${storageMountPoint}; then
-          mount -t ntfs -o uid=1000,gid=100,dmask=022,fmask=133 "$LDM_DEV" ${storageMountPoint}
-          echo "Mounted $LDM_DEV at ${storageMountPoint}"
-        fi
-      '';
-      ExecStop = pkgs.writeShellScript "ldm-umount" ''
-        umount ${storageMountPoint} 2>/dev/null || true
-      '';
-    };
-  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
