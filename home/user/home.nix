@@ -1,4 +1,10 @@
-{ config, pkgs, lib, osConfig, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  osConfig,
+  ...
+}:
 
 {
   imports = [
@@ -15,8 +21,9 @@
     ../../modules/home-manager/teams.nix
     ../../modules/home-manager/vscode.nix
     ../../modules/home-manager/vlc.nix
-    ../../modules/home-manager/winboat.nix
-  ] ++ lib.optionals (osConfig.networking.hostName == "desktop") [
+    # ../../modules/home-manager/winboat.nix
+  ]
+  ++ lib.optionals (osConfig.networking.hostName == "desktop") [
     ../../hosts/desktop/display-configuration.nix
   ];
 
