@@ -1,8 +1,15 @@
-{ config, pkgs, lib, osConfig, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  osConfig,
+  ...
+}:
 let
   storageMountPoint = lib.attrByPath [ "bastiaan" "storage" "mountPoint" ] null osConfig;
-  collectionPath = lib.optionalString (storageMountPoint != null) "${storageMountPoint}/Music";
-  strawberryDbPath = "${config.xdg.dataHome}/strawberry/strawberry/strawberry.db";
+  collectionPath = lib.optionalString (storageMountPoint != null) "${storageMountPoint}/nas/Music";
+  strawberryDbDir = "${config.xdg.dataHome}/strawberry/strawberry";
+  strawberryDbPath = "${strawberryDbDir}/strawberry.db";
   strawberryConfPath = "${config.xdg.configHome}/strawberry/strawberry.conf";
 in
 {
@@ -10,11 +17,24 @@ in
     pkgs.strawberry
   ];
 
-  home.activation.strawberryCollection = lib.mkIf (storageMountPoint != null) (lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    mkdir -p "$(dirname "${strawberryDbPath}")"
-    ${pkgs.sqlite}/bin/sqlite3 "${strawberryDbPath}" 'CREATE TABLE IF NOT EXISTS directories (path TEXT NOT NULL, subdirs INTEGER NOT NULL);'
-    ${pkgs.sqlite}/bin/sqlite3 "${strawberryDbPath}" "DELETE FROM directories WHERE path = '${collectionPath}'; INSERT INTO directories (path, subdirs) VALUES ('${collectionPath}', 1);"
-  '');
+  home.activation.strawberryCollection = lib.mkIf (storageMountPoint != null) (
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      mkdir -p "${strawberryDbDir}"
+
+      if [ -f "${strawberryDbPath}" ]; then
+        hasSchemaVersionTable="$(${pkgs.sqlite}/bin/sqlite3 "${strawberryDbPath}" "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version';")"
+
+        if [ "$hasSchemaVersionTable" != "1" ]; then
+          mv "${strawberryDbPath}" "${strawberryDbPath}.invalid-schema"
+          rm -f "${strawberryDbPath}-shm" "${strawberryDbPath}-wal"
+        fi
+      fi
+
+      if [ -f "${strawberryDbPath}" ]; then
+        ${pkgs.sqlite}/bin/sqlite3 "${strawberryDbPath}" "DELETE FROM directories WHERE path = '${collectionPath}'; INSERT INTO directories (path, subdirs) VALUES ('${collectionPath}', 1);"
+      fi
+    ''
+  );
 
   home.activation.strawberrySettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     mkdir -p "$(dirname "${strawberryConfPath}")"
