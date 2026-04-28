@@ -145,24 +145,61 @@ in
     pkgs.zfs
   ];
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+  # Media and cloud services
+  services.jellyfin = {
+    enable = true;
+    openFirewall = true;
+  };
 
-  # List services that you want to enable:
+  # Improve LAN service discovery for Jellyfin clients and receivers.
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+    publish = {
+      enable = true;
+      addresses = true;
+      workstation = true;
+      domain = true;
+      userServices = true;
+    };
+  };
 
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.nextcloud = {
+    enable = true;
+    hostName = "desktop.local";
+    https = false;
+    datadir = "/mnt/storage/nas/Nextcloud";
+    extraApps = {
+      inherit (pkgs.nextcloud32Packages.apps) memories;
+    };
+    settings = {
+      trusted_domains = [
+        "desktop"
+        "desktop.local"
+        "192.168.1.88"
+      ];
+      overwriteprotocol = "http";
+      "overwrite.cli.url" = "http://desktop.local";
+    };
+    config = {
+      dbtype = "sqlite";
+      adminuser = "admin";
+      adminpassFile = "/var/lib/nextcloud-admin-pass";
+    };
+  };
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  # Ensure cron cannot run before initial Nextcloud setup is complete.
+  systemd.services.nextcloud-cron = {
+    requires = [ "nextcloud-setup.service" ];
+    after = [ "nextcloud-setup.service" ];
+  };
+
+  # Ensure web UI reachability if firewall is enabled
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
