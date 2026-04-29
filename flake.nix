@@ -46,6 +46,7 @@
           ./modules/nixos/steam.nix
           ./modules/nixos/common.nix
           ./hosts/desktop/disko.nix
+          ./modules/nixos/nextcloud.nix
           disko.nixosModules.disko
           # home-manager integration
           home-manager.nixosModules.home-manager

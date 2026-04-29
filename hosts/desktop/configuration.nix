@@ -9,10 +9,6 @@
   ...
 }:
 
-let
-  storageMountPoint = config.bastiaan.storage.mountPoint;
-in
-
 {
   imports = [
     # Include the results of the hardware scan.
@@ -134,10 +130,6 @@ in
     "zfs"
   ];
   boot.zfs.extraPools = [ "storage" ];
-  fileSystems.${storageMountPoint} = {
-    device = "storage";
-    fsType = "zfs";
-  };
 
   # Windows Dynamic Disk (spanned volume across 2x 2.7T Seagate ST3000DM008)
   environment.systemPackages = [
@@ -163,36 +155,6 @@ in
       domain = true;
       userServices = true;
     };
-  };
-
-  services.nextcloud = {
-    enable = true;
-    hostName = "desktop.local";
-    https = false;
-    datadir = "/mnt/storage/nas/Nextcloud";
-    extraApps = {
-      inherit (pkgs.nextcloud32Packages.apps) memories;
-    };
-    settings = {
-      trusted_domains = [
-        "desktop"
-        "desktop.local"
-        "192.168.1.88"
-      ];
-      overwriteprotocol = "http";
-      "overwrite.cli.url" = "http://desktop.local";
-    };
-    config = {
-      dbtype = "sqlite";
-      adminuser = "admin";
-      adminpassFile = "/var/lib/nextcloud-admin-pass";
-    };
-  };
-
-  # Ensure cron cannot run before initial Nextcloud setup is complete.
-  systemd.services.nextcloud-cron = {
-    requires = [ "nextcloud-setup.service" ];
-    after = [ "nextcloud-setup.service" ];
   };
 
   # Ensure web UI reachability if firewall is enabled
