@@ -44,6 +44,7 @@
           ./modules/nixos/docker.nix
           ./modules/nixos/docker-gpu.nix
           ./modules/nixos/steam.nix
+          ./modules/nixos/jellyfin-arr.nix
           ./modules/nixos/common.nix
           ./hosts/desktop/disko.nix
           ./modules/nixos/nextcloud.nix

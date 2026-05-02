@@ -130,12 +130,6 @@
     pkgs.zfs
   ];
 
-  # Media and cloud services
-  services.jellyfin = {
-    enable = true;
-    openFirewall = true;
-  };
-
   # Improve LAN service discovery for Jellyfin clients and receivers.
   services.avahi = {
     enable = true;
