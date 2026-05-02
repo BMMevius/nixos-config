@@ -72,13 +72,6 @@
     variant = "";
   };
 
-  services.displayManager = {
-    autoLogin = {
-      enable = true;
-      user = "bastiaan";
-    };
-    defaultSession = "plasma";
-  };
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
