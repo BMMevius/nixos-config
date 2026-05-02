@@ -24,6 +24,7 @@
     # ../../modules/home-manager/winboat.nix
   ]
   ++ lib.optionals (osConfig.networking.hostName == "desktop") [
+    ../../modules/home-manager/discord.nix
     ../../hosts/desktop/display-configuration.nix
   ];
 
