@@ -35,6 +35,7 @@ in
         "localhost"
         "::1"
         "127.0.0.1"
+        "*.ts.net"
       ];
       overwriteprotocol = "http";
     };
@@ -141,6 +142,7 @@ in
       "localhost"
       "127.0.0.1"
       "192.168.1.88"
+      "*.ts.net"
     ];
     locations = {
       "^~ /browser" = {

@@ -43,6 +43,10 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
+  services.tailscale = {
+    enable = true;
+    openFirewall = true;
+  };
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
@@ -71,7 +75,6 @@
     layout = "us";
     variant = "";
   };
-
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
