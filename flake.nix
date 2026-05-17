@@ -35,6 +35,9 @@
     {
       nixosConfigurations.desktop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
+        specialArgs = {
+          inherit nixpkgs-unstable;
+        };
         modules = [
           ./hosts/desktop/configuration.nix
           ./modules/nixos/boot.nix
@@ -70,6 +73,9 @@
 
       nixosConfigurations.work-laptop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
+        specialArgs = {
+          inherit nixpkgs-unstable;
+        };
         modules = [
           ./hosts/work-laptop/configuration.nix
           ./modules/nixos/boot.nix
