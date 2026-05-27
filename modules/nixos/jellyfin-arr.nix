@@ -310,6 +310,97 @@ in
     '';
   };
 
+  # Ensure Seerr always has default Sonarr/Radarr servers for requests
+  # from external clients that do not pass an explicit server override.
+  systemd.services.seerr-defaults-bootstrap = {
+    description = "Bootstrap Seerr default Sonarr/Radarr servers";
+    after = [
+      "seerr.service"
+      "sonarr.service"
+      "radarr.service"
+    ];
+    wants = [
+      "seerr.service"
+      "sonarr.service"
+      "radarr.service"
+    ];
+    wantedBy = [ "multi-user.target" ];
+    path = with pkgs; [
+      sqlite
+      coreutils
+      bash
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      User = "seerr";
+      Group = "seerr";
+    };
+    script = ''
+      set -euo pipefail
+
+      db="/var/lib/jellyseerr/config/db/db.sqlite3"
+
+      # Give Seerr a short window to initialize its DB.
+      for _ in $(seq 1 30); do
+        [ -f "$db" ] && break
+        sleep 2
+      done
+
+      if [ ! -f "$db" ]; then
+        echo "Seerr DB not found; skipping defaults bootstrap"
+        exit 0
+      fi
+
+      table_exists() {
+        local table="$1"
+        [ "$(sqlite3 "$db" "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='$table';")" -gt 0 ]
+      }
+
+      column_exists() {
+        local table="$1" col="$2"
+        sqlite3 "$db" "PRAGMA table_info($table);" | awk -F'|' -v c="$col" '$2==c{found=1} END{exit !found}'
+      }
+
+      set_default_for_table() {
+        local table="$1"
+
+        if ! table_exists "$table"; then
+          echo "Seerr table '$table' not found; skipping"
+          return
+        fi
+
+        if ! column_exists "$table" "id" || ! column_exists "$table" "isDefault"; then
+          echo "Seerr table '$table' missing id/isDefault columns; skipping"
+          return
+        fi
+
+        local count
+        count="$(sqlite3 "$db" "SELECT COUNT(*) FROM $table;")"
+        if [ "$count" -eq 0 ]; then
+          echo "Seerr table '$table' has no rows; skipping"
+          return
+        fi
+
+        sqlite3 "$db" "UPDATE $table SET isDefault = 0;"
+
+        if column_exists "$table" "is4k"; then
+          sqlite3 "$db" "UPDATE $table SET isDefault = 1 WHERE id = (SELECT id FROM $table WHERE COALESCE(is4k, 0) = 0 ORDER BY id LIMIT 1);"
+        fi
+
+        sqlite3 "$db" "UPDATE $table SET isDefault = 1 WHERE id = (SELECT id FROM $table WHERE isDefault = 1 ORDER BY id LIMIT 1);"
+
+        if [ "$(sqlite3 "$db" "SELECT COUNT(*) FROM $table WHERE isDefault = 1;")" -eq 0 ]; then
+          sqlite3 "$db" "UPDATE $table SET isDefault = 1 WHERE id = (SELECT id FROM $table ORDER BY id LIMIT 1);"
+        fi
+
+        echo "Seerr default ensured for '$table'"
+      }
+
+      set_default_for_table "sonarr"
+      set_default_for_table "radarr"
+    '';
+  };
+
   systemd.tmpfiles.rules = [
     "d ${mediaRoot}              0755 root root -"
     "d ${filmRoot}               0777 root root -"
