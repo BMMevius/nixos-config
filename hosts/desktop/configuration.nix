@@ -46,6 +46,35 @@
   services.tailscale = {
     enable = true;
     openFirewall = true;
+    useRoutingFeatures = "none";
+    extraUpFlags = [ "--accept-routes=false" ];
+  };
+
+  # Ensure the node reconnects to tailnet on startup.
+  systemd.services.tailscale-autoup = {
+    description = "Bring Tailscale up at boot";
+    after = [
+      "tailscaled.service"
+      "network-online.target"
+    ];
+    wants = [
+      "tailscaled.service"
+      "network-online.target"
+    ];
+    wantedBy = [ "multi-user.target" ];
+    path = with pkgs; [
+      tailscale
+      gnugrep
+      bash
+    ];
+    serviceConfig.Type = "oneshot";
+    script = ''
+      set -euo pipefail
+      if tailscale status --json | grep -q '"BackendState": "Running"'; then
+        exit 0
+      fi
+      tailscale up --accept-routes=false
+    '';
   };
 
   # Set your time zone.
@@ -152,6 +181,11 @@
     80
     443
   ];
+  # Keep tailnet exposure limited to Nextcloud via nginx (80/443).
+  networking.firewall.extraInputRules = ''
+    iifname "tailscale0" tcp dport != { 80, 443 } drop
+    iifname "tailscale0" udp dport != { 80, 443 } drop
+  '';
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
