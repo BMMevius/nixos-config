@@ -7,6 +7,9 @@
 
 let
   storageMountPoint = config.bastiaan.storage.mountPoint;
+  collaboraInternalUrl = "http://127.0.0.1:9980";
+  collaboraLocalUrl = "http://desktop.local";
+  collaboraTailscaleUrl = "http://desktop.eel-pinecone.ts.net";
 in
 
 {
@@ -35,6 +38,7 @@ in
         "localhost"
         "::1"
         "127.0.0.1"
+        "desktop.eel-pinecone.ts.net"
         "*.ts.net"
       ];
       overwriteprotocol = "http";
@@ -54,8 +58,19 @@ in
     enable = true;
     aliasGroups = [
       {
-        host = "http://desktop.local";
+        host = collaboraLocalUrl;
         aliases = [
+          "http://desktop"
+          "http://192.168.1.88"
+          "http://localhost"
+          "http://127.0.0.1"
+          collaboraTailscaleUrl
+        ];
+      }
+      {
+        host = collaboraTailscaleUrl;
+        aliases = [
+          collaboraLocalUrl
           "http://desktop"
           "http://192.168.1.88"
           "http://localhost"
@@ -64,7 +79,7 @@ in
       }
     ];
     settings = {
-      server_name = "desktop.local";
+      server_name = "desktop.eel-pinecone.ts.net";
       ssl = {
         enable = false;
         termination = false;
@@ -80,6 +95,7 @@ in
           "192.168.1.88"
           "desktop"
           "desktop.local"
+          "desktop.eel-pinecone.ts.net"
         ];
       };
     };
@@ -87,18 +103,23 @@ in
 
   systemd.services.nextcloud-setup = {
     postStart = ''
+      tailscale_ipv4="$(${pkgs.tailscale}/bin/tailscale status --json 2>/dev/null | ${pkgs.jq}/bin/jq -r '.Self.TailscaleIPs[]? | select(test("^[0-9.]+$"))' | head -n1)"
+      wopi_allowlist="127.0.0.1,::1,192.168.1.88,desktop.eel-pinecone.ts.net"
+      if [ -n "$tailscale_ipv4" ]; then
+        wopi_allowlist="$wopi_allowlist,$tailscale_ipv4"
+      fi
+
       ${config.services.nextcloud.occ}/bin/nextcloud-occ config:app:set \
         memories maps_tile_server \
         --value="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      ${config.services.nextcloud.occ}/bin/nextcloud-occ config:app:set \
-        richdocuments wopi_url \
-        --value="http://desktop.local"
+      ${config.services.nextcloud.occ}/bin/nextcloud-occ richdocuments:activate-config \
+        --wopi-url="${collaboraInternalUrl}"
       ${config.services.nextcloud.occ}/bin/nextcloud-occ config:app:set \
         richdocuments public_wopi_url \
-        --value="http://desktop.local"
+        --value="${collaboraTailscaleUrl}"
       ${config.services.nextcloud.occ}/bin/nextcloud-occ config:app:set \
         richdocuments wopi_allowlist \
-        --value="127.0.0.1,::1,192.168.1.88"
+        --value="$wopi_allowlist"
       ${config.services.nextcloud.occ}/bin/nextcloud-occ config:app:delete \
         richdocuments wopi_callback_url || true
       ${config.services.nextcloud.occ}/bin/nextcloud-occ config:app:delete \
@@ -142,6 +163,7 @@ in
       "localhost"
       "127.0.0.1"
       "192.168.1.88"
+      "desktop.eel-pinecone.ts.net"
       "*.ts.net"
     ];
     locations = {
@@ -177,6 +199,8 @@ in
         proxyWebsockets = true;
         recommendedProxySettings = true;
         extraConfig = ''
+          proxy_read_timeout 36000s;
+          proxy_buffering off;
           proxy_set_header Host $host;
           proxy_set_header X-Forwarded-Host $host;
           proxy_set_header X-Forwarded-Proto $scheme;
