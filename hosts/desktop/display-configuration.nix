@@ -79,7 +79,7 @@
                                 "x": 1920,
                                 "y": 0
                             },
-                            "priority": 0,
+                            "priority": 1,
                             "replicationSource": ""
                         },
                         {
@@ -89,7 +89,7 @@
                                 "x": 0,
                                 "y": 0
                             },
-                            "priority": 1,
+                            "priority": 0,
                             "replicationSource": ""
                         }
                     ]
