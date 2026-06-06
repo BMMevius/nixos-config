@@ -6,7 +6,7 @@
 }:
 
 let
-  unstablePkgs = nixpkgs-unstable.legacyPackages.${pkgs.system};
+  unstablePkgs = nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
   mediaRoot = "/mnt/storage/nas/Media";
   downloadsRoot = "${mediaRoot}/Downloads";
   filmRoot = "${mediaRoot}/Film";
