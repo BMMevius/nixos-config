@@ -143,9 +143,6 @@
   # Enable fish system-wide (adds it to /etc/shells)
   programs.fish.enable = true;
 
-  # Install firefox.
-  programs.firefox.enable = true;
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 

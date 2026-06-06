@@ -41,6 +41,7 @@
         modules = [
           ./hosts/desktop/configuration.nix
           ./modules/nixos/boot.nix
+          ./modules/nixos/firefox.nix
           ./modules/graphics/gtx970.nix
           ./modules/nixos/kde.nix
           ./modules/nixos/l2tp-vpn.nix
@@ -79,6 +80,7 @@
         modules = [
           ./hosts/work-laptop/configuration.nix
           ./modules/nixos/boot.nix
+          ./modules/nixos/firefox.nix
           ./modules/nixos/kde.nix
           ./modules/nixos/l2tp-vpn.nix
           ./modules/nixos/docker.nix
