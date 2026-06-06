@@ -142,6 +142,7 @@
 
   # Enable fish system-wide (adds it to /etc/shells)
   programs.fish.enable = true;
+  programs.hyprland.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;

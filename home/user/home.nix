@@ -25,6 +25,7 @@
   ]
   ++ lib.optionals (osConfig.networking.hostName == "desktop") [
     ../../modules/home-manager/discord.nix
+    ../../modules/home-manager/hyprland.nix
     ../../hosts/desktop/display-configuration.nix
   ];
 
