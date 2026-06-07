@@ -12,6 +12,7 @@
     package = null;
     portalPackage = null;
     xwayland.enable = true;
+    systemd.enable = false;
 
     # Main hyprland configuration
     settings = {
@@ -187,7 +188,10 @@
       ];
 
       exec-once = [
-        "waybar"
+        "uwsm finalize"
+        "uwsm app -- sh -c '[ -x /run/current-system/hyprland/libexec/pam_kwallet_init ] && /run/current-system/hyprland/libexec/pam_kwallet_init'"
+        "uwsm app -- waybar"
+        "uwsm app -- mako"
       ];
     };
   };
@@ -255,8 +259,6 @@
 
   # Install additional hyprland-related tools
   home.packages = with pkgs-unstable; [
-    hyprpicker
-    hyprcursor
     hyprlock
     hypridle
     kitty

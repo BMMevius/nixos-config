@@ -15,13 +15,11 @@
     ../../modules/home-manager/ktorrent.nix
     ../../modules/home-manager/office.nix
     ../../modules/home-manager/openboard.nix
-    ../../modules/home-manager/plasma.nix
     ../../modules/home-manager/signal.nix
     ../../modules/home-manager/strawberry.nix
     ../../modules/home-manager/teams.nix
     ../../modules/home-manager/vscode.nix
     ../../modules/home-manager/vlc.nix
-    # ../../modules/home-manager/winboat.nix
   ]
   ++ lib.optionals (osConfig.networking.hostName == "desktop") [
     ../../modules/home-manager/discord.nix

@@ -14,12 +14,6 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    plasma-manager = {
-      url = "github:nix-community/plasma-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
-    };
   };
 
   outputs =
@@ -29,7 +23,6 @@
       nixpkgs-unstable,
       home-manager,
       disko,
-      plasma-manager,
       ...
     }:
     {
@@ -65,9 +58,6 @@
                 config.allowUnfree = true;
               };
             };
-            home-manager.sharedModules = [
-              plasma-manager.homeModules.plasma-manager
-            ];
           }
         ];
       };
@@ -101,9 +91,6 @@
                 config.allowUnfree = true;
               };
             };
-            home-manager.sharedModules = [
-              plasma-manager.homeModules.plasma-manager
-            ];
           }
         ];
       };
