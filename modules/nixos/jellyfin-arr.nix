@@ -13,14 +13,6 @@ let
   seriesRoot = "${mediaRoot}/Series";
 in
 {
-  disabledModules = [
-    "services/misc/jellyseerr.nix"
-  ];
-
-  imports = [
-    "${nixpkgs-unstable.outPath}/nixos/modules/services/misc/seerr.nix"
-  ];
-
   services.jellyfin = {
     enable = true;
     openFirewall = true;
@@ -28,7 +20,6 @@ in
   services.seerr = {
     enable = true;
     openFirewall = true;
-    package = unstablePkgs.seerr;
   };
   services.sonarr = {
     enable = true;

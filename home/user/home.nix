@@ -31,5 +31,5 @@
   home.homeDirectory = "/home/bastiaan";
 
   # Enable home-manager modules
-  home.stateVersion = "25.11"; # match your NixOS version
+  home.stateVersion = "26.05"; # match your NixOS version
 }

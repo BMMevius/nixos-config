@@ -153,6 +153,7 @@
     "zfs"
   ];
   boot.zfs.extraPools = [ "storage" ];
+  boot.zfs.forceImportRoot = false;
 
   # Windows Dynamic Disk (spanned volume across 2x 2.7T Seagate ST3000DM008)
   environment.systemPackages = [

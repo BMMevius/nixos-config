@@ -1,8 +1,11 @@
-{ config, pkgs, lib, ... }:
 {
-  boot.kernelPackages = lib.mkForce pkgs.linuxPackages_6_18;
-  boot.initrd.kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
-  boot.kernelParams = [ "nvidia-drm.modeset=1" ];
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+{
+  nixpkgs.config.allowUnfree = true;
 
   hardware.graphics = {
     enable = true;
@@ -12,6 +15,7 @@
   services.xserver.videoDrivers = [ "nvidia" ];
 
   hardware.nvidia = {
+    branch = "legacy_580";
     modesetting.enable = true;
     nvidiaSettings = true;
     open = false;
