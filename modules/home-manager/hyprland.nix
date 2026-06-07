@@ -15,16 +15,29 @@
 
     # Main hyprland configuration
     settings = {
+      monitor = [
+        "DP-1, preferred, 0x0, 1"
+        "HDMI-A-1, preferred, 1920x0, 1"
+      ];
+
       general = {
-        gaps_in = 5;
-        gaps_out = 20;
         border_size = 2;
-        col = {
-          active_border = "rgb(33ccff)";
-          inactive_border = "rgb(595959)";
-        };
+        gaps_in = 2;
+        gaps_out = 0;
+        float_gaps = 0;
+        gaps_workspaces = 0;
+        "col.active_border" = "rgba(33ccffff)";
+        "col.inactive_border" = "rgba(595959ff)";
+        "col.nogroup_border" = "rgba(ffffaaff)";
+        "col.nogroup_border_active" = "rgba(ffff00ff)";
         layout = "dwindle";
         no_focus_fallback = false;
+        resize_on_border = false;
+        extend_border_grab_area = 15;
+        hover_icon_on_border = true;
+        allow_tearing = false;
+        resize_corner = 0;
+        modal_parent_blocking = true;
       };
 
       decoration = {
@@ -114,7 +127,7 @@
         "SUPER SHIFT, Q, killactive,"
         "SUPER SHIFT, F, fullscreen, 0"
         "SUPER, F, togglefloating,"
-        "SUPER CTRL, F, fakefullscreen, 0"
+        "SUPER CTRL, F, fullscreenstate, 0"
 
         "SUPER, 1, workspace, 1"
         "SUPER, 2, workspace, 2"
@@ -139,11 +152,11 @@
         "SUPER, S, togglespecialworkspace, magic"
         "SUPER SHIFT, S, movetoworkspace, special:magic"
 
-        "SUPER, Return, exec, kitty"
-        "SUPER, E, exec, nautilus"
-        "SUPER, D, exec, fuzzel"
+        "CTRL ALT, T, exec, kitty"
+        "SUPER, E, exec, dolphin"
+        "SUPER, R, exec, fuzzel"
 
-        "SUPER CTRL, S, cyclelayout, dwindle master"
+        "SUPER CTRL, S, layoutmsg, cyclenext"
       ];
 
       bindm = [
@@ -151,24 +164,22 @@
         "SUPER, mouse:273, resizewindow"
       ];
 
-      # Window rules
-      windowrule = [
-        "float, ^(pavucontrol)$"
-        "float, ^(blueman-manager)$"
-        "float, ^(nm-applet)$"
-        "float, ^(file-roller)$"
-        "size 800 600, ^(pavucontrol)$"
-        "size 900 700, ^(blueman-manager)$"
-        "idleinhibit fullscreen, ^(mpv)$"
-        "idleinhibit fullscreen, ^(firefox)$"
-        "opacity 0.95, ^(kitty)$"
-        "opacity 0.95, ^(code)$"
-      ];
-
       windowrulev2 = [
         "nofocus, class:^(notification)$,title:^(Notification)$"
+        "float, class:^(pavucontrol)$"
         "center, class:^(pavucontrol)$"
         "center, class:^(nm-connection-editor)$"
+        "float, class:^(blueman-manager)$"
+        "float, class:^(nm-applet)$"
+        "float, class:^(file-roller)$"
+        "size 800 600, class:^(pavucontrol)$"
+        "size 900 700, class:^(blueman-manager)$"
+        "idleinhibit fullscreen, class:^(mpv)$"
+        "idleinhibit fullscreen, class:^(firefox)$"
+        "opacity 0.95 0.95, class:^(kitty)$"
+        "opacity 0.95 0.95, class:^(code)$"
+      ];
+
       ];
     };
   };
