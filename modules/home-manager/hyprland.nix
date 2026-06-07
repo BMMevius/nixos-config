@@ -20,14 +20,19 @@
         "HDMI-A-1, preferred, 1920x0, 1"
       ];
 
+      workspace = [
+        "1, monitor:DP-1, default:true"
+        "2, monitor:HDMI-A-1"
+      ];
+
       general = {
         border_size = 2;
-        gaps_in = 2;
+        gaps_in = 0;
         gaps_out = 0;
         float_gaps = 0;
         gaps_workspaces = 0;
         "col.active_border" = "rgba(33ccffff)";
-        "col.inactive_border" = "rgba(595959ff)";
+        "col.inactive_border" = "rgba(bebebeff)";
         "col.nogroup_border" = "rgba(ffffaaff)";
         "col.nogroup_border_active" = "rgba(ffff00ff)";
         layout = "dwindle";
@@ -41,13 +46,13 @@
       };
 
       decoration = {
-        rounding = 10;
+        rounding = 0;
         active_opacity = 1.0;
-        inactive_opacity = 0.9;
+        inactive_opacity = 1.0;
         fullscreen_opacity = 1.0;
 
         blur = {
-          enabled = true;
+          enabled = false;
           size = 3;
           passes = 1;
           ignore_opacity = false;
@@ -55,7 +60,7 @@
         };
 
         shadow = {
-          enabled = true;
+          enabled = false;
           range = 4;
           render_power = 3;
           color = "rgba(1a1a1aee)";
@@ -89,10 +94,11 @@
       };
 
       dwindle = {
-        pseudotile = false;
+        force_split = 2;
         preserve_split = true;
         smart_split = false;
-        smart_resizing = true;
+        smart_resizing = false;
+        split_bias = 1;
       };
 
       master = {
@@ -125,9 +131,11 @@
         "SUPER CTRL, Down, resizeactive, 0 50"
 
         "SUPER SHIFT, Q, killactive,"
+        "ALT, F4, killactive,"
         "SUPER SHIFT, F, fullscreen, 0"
         "SUPER, F, togglefloating,"
         "SUPER CTRL, F, fullscreenstate, 0"
+        "SUPER, T, togglesplit"
 
         "SUPER, 1, workspace, 1"
         "SUPER, 2, workspace, 2"
@@ -155,8 +163,6 @@
         "CTRL ALT, T, exec, kitty"
         "SUPER, E, exec, dolphin"
         "SUPER, R, exec, fuzzel"
-
-        "SUPER CTRL, S, layoutmsg, cyclenext"
       ];
 
       bindm = [
@@ -193,29 +199,23 @@
         layer = "top";
         position = "top";
         height = 30;
-        modules-left = ["hyprland/workspaces" "hyprland/window"];
-        modules-center = ["clock"];
-        modules-right = ["pulseaudio" "network" "battery" "tray"];
+        modules-left = [
+          "hyprland/workspaces"
+          "hyprland/window"
+        ];
+        modules-center = [ "clock" ];
+        modules-right = [
+          "pulseaudio"
+          "tray"
+        ];
 
         "hyprland/workspaces" = {
-          disable-scroll = true;
           all-outputs = true;
         };
 
         clock = {
           format = "{:%H:%M}";
           tooltip-format = "{:%Y-%m-%d}";
-        };
-
-        battery = {
-          format = "{capacity}% {icon}";
-          format-icons = ["" "" "" "" ""];
-        };
-
-        network = {
-          format-wifi = "{essid} ";
-          format-ethernet = "{ifname} ";
-          format-disconnected = "⚠";
         };
 
         pulseaudio = {
