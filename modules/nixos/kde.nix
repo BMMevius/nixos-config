@@ -16,6 +16,8 @@
   };
 
   services.dbus.packages = [ pkgs.kdePackages.kwallet ];
+  services.udisks2.enable = true;
+  security.polkit.enable = true;
 
   environment.systemPackages = with pkgs; [
     kdePackages.kwalletmanager

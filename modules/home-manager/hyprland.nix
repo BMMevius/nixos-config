@@ -187,6 +187,7 @@
       exec-once = [
         "uwsm finalize WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
         "uwsm app -- /run/current-system/hyprland/libexec/pam_kwallet_init"
+        "uwsm app -- udiskie"
       ];
     };
   };
@@ -208,8 +209,9 @@
         ];
         modules-center = [ "clock" ];
         modules-right = [
-          "pulseaudio"
           "tray"
+          "memory"
+          "pulseaudio"
         ];
 
         "hyprland/workspaces" = {
@@ -217,13 +219,36 @@
         };
 
         clock = {
-          format = "{:%H:%M}";
-          tooltip-format = "{:%Y-%m-%d}";
+          format = "{:%Y-%m-%d %H:%M}";
+        };
+
+        "tray" = {
+          icon-size = 16;
+          spacing = 10;
+        };
+
+        memory = {
+          interval = 1;
+          format = "{used} / {total} ({percent}%)";
         };
 
         pulseaudio = {
           format = "{volume}% {icon}";
           format-muted = "muted ";
+          format-icons = {
+            headphone = "";
+            hands-free = "";
+            headset = "";
+            phone = "";
+            portable = "";
+            car = "";
+            default = [
+              ""
+              ""
+              ""
+            ];
+          };
+          on-click = "pavucontrol";
         };
       };
     };
@@ -231,7 +256,7 @@
     style = ''
       * {
         font-family: JetBrains Mono;
-        font-size: 13px;
+        font-size: 14px;
       }
 
       window#waybar {
@@ -252,15 +277,26 @@
       #clock {
         padding: 0 10px;
         color: #cdd6f4;
+        font-weight: bold;
+      }
+
+      #memory, #pulseaudio, #tray {
+        padding: 0 10px;
+        margin: 0 4px;
+        background-color: #383c4a;
+        border-radius: 4px;
       }
     '';
   };
 
   # Install additional hyprland-related tools
   home.packages = with pkgs-unstable; [
+    pavucontrol # GUI for audio inputs/outputs dropdown
+    lxqt.lxqt-policykit # Required for mounting disks without root privileges
     hyprlock
     hypridle
     kitty
     fuzzel
+    udiskie
   ];
 }
