@@ -13,9 +13,12 @@
     portalPackage = null;
     xwayland.enable = true;
     systemd.enable = false;
+    configType = "hyprlang";
 
     # Main hyprland configuration
     settings = {
+      ecosystem.no_update_news = true;
+
       monitor = [
         "DP-1, preferred, 0x0, 1"
         "HDMI-A-1, preferred, 1920x0, 1"
@@ -111,7 +114,6 @@
       misc = {
         force_default_wallpaper = 0;
         disable_hyprland_logo = false;
-        vfr = true;
       };
 
       # Keybindings
@@ -136,7 +138,7 @@
         "SUPER SHIFT, F, fullscreen, 0"
         "SUPER, F, togglefloating,"
         "SUPER CTRL, F, fullscreenstate, 0"
-        "SUPER, T, togglesplit"
+        "SUPER, T, layoutmsg, togglesplit"
 
         "SUPER, 1, workspace, 1"
         "SUPER, 2, workspace, 2"
@@ -171,33 +173,30 @@
         "SUPER, mouse:273, resizewindow"
       ];
 
-      windowrulev2 = [
-        "nofocus, class:^(notification)$,title:^(Notification)$"
-        "float, class:^(pavucontrol)$"
-        "center, class:^(pavucontrol)$"
-        "center, class:^(nm-connection-editor)$"
-        "float, class:^(blueman-manager)$"
-        "float, class:^(nm-applet)$"
-        "float, class:^(file-roller)$"
-        "size 800 600, class:^(pavucontrol)$"
-        "size 900 700, class:^(blueman-manager)$"
-        "idleinhibit fullscreen, class:^(mpv)$"
-        "idleinhibit fullscreen, class:^(firefox)$"
-        "opacity 0.95 0.95, class:^(kitty)$"
-        "opacity 0.95 0.95, class:^(code)$"
+      windowrule = [
+        "match:class = notification, match:title = Notification, no_focus = true"
+        "match:class = pavucontrol, float = true, center = true, size = 800x600"
+        "match:class = nm-connection-editor, center = true"
+        "match:class = blueman-manager, float = true, size = 900x700"
+        "match:class = nm-applet, float = true"
+        "match:class = file-roller, float = true"
+        "opacity 0.95 0.95, match:class = kitty"
+        "opacity 0.95 0.95, match:class = code"
       ];
 
       exec-once = [
-        "uwsm finalize"
-        "uwsm app -- sh -c '[ -x /run/current-system/hyprland/libexec/pam_kwallet_init ] && /run/current-system/hyprland/libexec/pam_kwallet_init'"
-        "uwsm app -- waybar"
-        "uwsm app -- mako"
+        "uwsm finalize WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
+        "uwsm app -- /run/current-system/hyprland/libexec/pam_kwallet_init"
       ];
     };
   };
 
   programs.waybar = {
     enable = true;
+    systemd = {
+      enable = true;
+      targets = [ "graphical-session.target" ];
+    };
     settings = {
       mainBar = {
         layer = "top";
