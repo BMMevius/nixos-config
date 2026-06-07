@@ -20,10 +20,11 @@
     ../../modules/home-manager/teams.nix
     ../../modules/home-manager/vscode.nix
     ../../modules/home-manager/vlc.nix
+    ../../modules/home-manager/hyprland.nix
+    ../../modules/home-manager/image-viewer.nix
   ]
   ++ lib.optionals (osConfig.networking.hostName == "desktop") [
     ../../modules/home-manager/discord.nix
-    ../../modules/home-manager/hyprland.nix
     ../../hosts/desktop/display-configuration.nix
   ];
 
