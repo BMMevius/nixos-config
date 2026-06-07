@@ -180,8 +180,77 @@
         "opacity 0.95 0.95, class:^(code)$"
       ];
 
+      exec-once = [
+        "waybar"
       ];
     };
+  };
+
+  programs.waybar = {
+    enable = true;
+    settings = {
+      mainBar = {
+        layer = "top";
+        position = "top";
+        height = 30;
+        modules-left = ["hyprland/workspaces" "hyprland/window"];
+        modules-center = ["clock"];
+        modules-right = ["pulseaudio" "network" "battery" "tray"];
+
+        "hyprland/workspaces" = {
+          disable-scroll = true;
+          all-outputs = true;
+        };
+
+        clock = {
+          format = "{:%H:%M}";
+          tooltip-format = "{:%Y-%m-%d}";
+        };
+
+        battery = {
+          format = "{capacity}% {icon}";
+          format-icons = ["" "" "" "" ""];
+        };
+
+        network = {
+          format-wifi = "{essid} ";
+          format-ethernet = "{ifname} ";
+          format-disconnected = "⚠";
+        };
+
+        pulseaudio = {
+          format = "{volume}% {icon}";
+          format-muted = "muted ";
+        };
+      };
+    };
+
+    style = ''
+      * {
+        font-family: JetBrains Mono;
+        font-size: 13px;
+      }
+
+      window#waybar {
+        background: #1e1e2e;
+        color: #cdd6f4;
+      }
+
+      #workspaces button {
+        padding: 0 8px;
+        color: #cdd6f4;
+      }
+
+      #workspaces button.active {
+        color: #cba6f7;
+        border-bottom: 2px solid #cba6f7;
+      }
+
+      #clock {
+        padding: 0 10px;
+        color: #cdd6f4;
+      }
+    '';
   };
 
   # Install additional hyprland-related tools
