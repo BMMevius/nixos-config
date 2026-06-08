@@ -133,12 +133,12 @@
         "SUPER CTRL, Up, resizeactive, 0 -50"
         "SUPER CTRL, Down, resizeactive, 0 50"
 
-        "SUPER SHIFT, Q, killactive,"
+        "SUPER, Q, killactive,"
         "ALT, F4, killactive,"
         "SUPER SHIFT, F, fullscreen, 0"
         "SUPER, F, togglefloating,"
-        "SUPER CTRL, F, fullscreenstate, 0"
         "SUPER, T, layoutmsg, togglesplit"
+        "SUPER, L, exec, hyprlock"
 
         "SUPER, 1, workspace, 1"
         "SUPER, 2, workspace, 2"
@@ -174,19 +174,19 @@
       ];
 
       windowrule = [
-        "match:class = notification, match:title = Notification, no_focus = true"
-        "match:class = pavucontrol, float = true, center = true, size = 800x600"
-        "match:class = nm-connection-editor, center = true"
-        "match:class = blueman-manager, float = true, size = 900x700"
-        "match:class = nm-applet, float = true"
-        "match:class = file-roller, float = true"
-        "opacity 0.95 0.95, match:class = kitty"
-        "opacity 0.95 0.95, match:class = code"
+        "match:class ^(notification)$, match:title ^(Notification)$, no_focus true"
+        "match:class ^(org.pulseaudio.pavucontrol)$, float true, center true, size 800 600"
+        "match:class ^(nm-connection-editor)$, center true"
+        "match:class ^(blueman-manager)$, float true, size 900 700"
+        "match:class ^(nm-applet)$, float true"
+        "match:class ^(file-roller)$, float true"
+        "opacity 0.95 0.95, match:class ^(kitty)$"
+        "opacity 0.95 0.95, match:class ^(code)$"
       ];
 
       exec-once = [
         "uwsm finalize WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
-        "uwsm app -- /run/current-system/hyprland/libexec/pam_kwallet_init"
+        "uwsm app -- ${pkgs.kdePackages.kwallet-pam}/libexec/pam_kwallet_init"
         "uwsm app -- udiskie"
       ];
     };
