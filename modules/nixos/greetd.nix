@@ -21,12 +21,12 @@
     enable = true;
     settings = {
       initial_session = {
-        command = "${pkgs.uwsm}/bin/uwsm start hyprland";
+        command = "${pkgs.uwsm}/bin/uwsm start -D hyprland-uwsm.desktop";
         user = "bastiaan";
       };
       default_session = {
         # This is the "fallback" if you log out
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd 'uwsm start hyprland'";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd '${pkgs.uwsm}/bin/uwsm start -D hyprland-uwsm.desktop'";
         user = "greeter";
       };
     };

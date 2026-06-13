@@ -30,6 +30,9 @@
 
   home.username = "bastiaan";
   home.homeDirectory = "/home/bastiaan";
+  home.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+  };
 
   # Enable home-manager modules
   home.stateVersion = "26.05"; # match your NixOS version
