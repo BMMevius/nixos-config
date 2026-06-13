@@ -45,6 +45,8 @@
           ./modules/nixos/common.nix
           ./hosts/desktop/disko.nix
           ./modules/nixos/nextcloud.nix
+          ./modules/nixos/greetd.nix
+          ./modules/nixos/uwsm.nix
           disko.nixosModules.disko
           # home-manager integration
           home-manager.nixosModules.home-manager
