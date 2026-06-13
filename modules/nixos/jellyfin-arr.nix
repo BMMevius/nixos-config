@@ -309,13 +309,9 @@ in
       "seerr.service"
       "sonarr.service"
       "radarr.service"
+      "graphical.target"
     ];
-    wants = [
-      "seerr.service"
-      "sonarr.service"
-      "radarr.service"
-    ];
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = [ "graphical.target" ];
     path = with pkgs; [
       sqlite
       coreutils
