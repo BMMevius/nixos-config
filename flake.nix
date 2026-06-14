@@ -72,6 +72,8 @@
         };
         modules = [
           ./hosts/work-laptop/configuration.nix
+          ./hosts/work-laptop/hardware-configuration.nix
+          ./hosts/work-laptop/graphics.nix
           ./modules/nixos/boot.nix
           ./modules/nixos/firefox.nix
           ./modules/nixos/kde.nix
@@ -80,6 +82,8 @@
           ./modules/nixos/docker-gpu.nix
           ./modules/nixos/steam.nix
           ./modules/nixos/common.nix
+          ./modules/nixos/greetd.nix
+          ./modules/nixos/uwsm.nix
           # ./modules/disko/luks.nix
           disko.nixosModules.disko
           # home-manager integration

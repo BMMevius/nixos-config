@@ -5,16 +5,20 @@
 { config, pkgs, ... }:
 
 {
+  boot.loader.grub = {
+    enable = true;
+    efiSupport = true;
+    device = "nodev";
+  };
+  boot.loader.efi = {
+    efiSysMountPoint = "/boot";
+  };
   boot.initrd.availableKernelModules = [
-    "xhci_pci"
-    "ahci"
-    "nvme"
     "usb_storage"
     "usbhid"
-    "sd_mod"
-    "sr_mod"
     "btrfs"
   ];
+  users.users.root.initialHashedPassword = "";
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
@@ -98,11 +102,9 @@
   nixpkgs.config.allowUnfree = true;
   boot.supportedFilesystems = [
     "ntfs"
-    "zfs"
   ];
   environment.systemPackages = [
     pkgs.ntfs3g
-    pkgs.zfs
   ];
 
   # This value determines the NixOS release from which the default
@@ -111,6 +113,6 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "25.11"; # Did you read the comment?
+  system.stateVersion = "26.11"; # Did you read the comment?
 
 }
