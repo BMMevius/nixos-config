@@ -19,10 +19,12 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.hostName = "laptop-bastiaan"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Enable networking
   networking.networkmanager.enable = true;
+
+  # Load redistributable firmware (WiFi firmware blobs for Intel/Realtek/Broadcom etc.)
+  hardware.enableRedistributableFirmware = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
