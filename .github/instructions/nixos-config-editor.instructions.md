@@ -20,6 +20,7 @@ applyTo: "**/*.nix"
 3. Host build checks (without switch):
    - `nix build .#nixosConfigurations.desktop.config.system.build.toplevel --no-link`
    - `nix build .#nixosConfigurations.work-laptop.config.system.build.toplevel --no-link`
+   Only build the host currently being edited if possible, otherwise skip building and let the user know.
 
 ## Notes
 - If newly created files are not included during evaluation, stage them first with `git add`.
