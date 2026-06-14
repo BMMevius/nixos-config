@@ -20,13 +20,41 @@
     "btrfs"
   ];
   users.users.root.initialHashedPassword = "";
-  # Use latest kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.hostName = "laptop-bastiaan"; # Define your hostname.
 
   # Enable networking
   networking.networkmanager.enable = true;
+  networking.nftables.enable = true;
+
+  # Docker's bridge networking needs br_netfilter (it has no broken install hook).
+  boot.kernelModules = [ "br_netfilter" ];
+
+  # This host runs NixOS on top of a foreign/FHS base system (note /usr/bin/modprobe
+  # and /etc/static -> /.host-etc/static). A host-provided modprobe.d snippet ships a
+  # broken `install nf_conntrack` hook that calls the non-existent /usr/bin/modprobe
+  # and /sbin/sysctl, so systemd-modules-load and kernel auto-loading fail to load
+  # nf_conntrack and its dependants (nf_nat, nft_ct, nft_chain_nat). That breaks
+  # nftables `ct state` rules and Docker's NAT chains. Modprobe.d overrides are
+  # unreliable here because the config path is contested by the host, so load the
+  # modules explicitly with --ignore-install (which bypasses the broken hook) before
+  # the firewall and Docker start.
+  systemd.services.load-netfilter-modules = {
+    description = "Load netfilter/conntrack kernel modules for nftables and Docker";
+    before = [
+      "nftables.service"
+      "docker.service"
+    ];
+    wantedBy = [
+      "nftables.service"
+      "docker.service"
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${pkgs.kmod}/bin/modprobe --ignore-install -a nf_conntrack nf_nat nft_ct nft_chain_nat";
+    };
+  };
 
   # Load redistributable firmware (WiFi firmware blobs for Intel/Realtek/Broadcom etc.)
   hardware.enableRedistributableFirmware = true;

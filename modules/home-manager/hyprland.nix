@@ -117,6 +117,9 @@ in
         mouse_refocus = true;
         sensitivity = 0.0;
         accel_profile = "flat";
+        touchpad = {
+          natural_scroll = true;
+        };
       };
 
       dwindle = {
