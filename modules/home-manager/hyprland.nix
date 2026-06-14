@@ -3,8 +3,37 @@
   pkgs,
   pkgs-unstable,
   lib,
+  osConfig,
   ...
 }:
+let
+  hostName = osConfig.networking.hostName or "";
+  isWorkLaptop = hostName == "laptop-bastiaan";
+
+  hyprlandHostSettings =
+    {
+      desktop = {
+        monitor = [
+          "DP-1, preferred, 0x0, 1"
+          "HDMI-A-1, preferred, 1920x0, 1"
+        ];
+
+        workspace = [
+          "1, monitor:DP-1, default:true"
+          "2, monitor:HDMI-A-1"
+        ];
+      };
+
+      "work-laptop" = {
+        monitor = [ ", preferred, auto, 1" ];
+        workspace = [ "1, default:true" ];
+      };
+    }
+    .${hostName} or {
+      monitor = [ ", preferred, auto, 1" ];
+      workspace = [ "1, default:true" ];
+    };
+in
 {
   wayland.windowManager.hyprland = {
     enable = true;
@@ -18,15 +47,9 @@
     settings = {
       ecosystem.no_update_news = true;
 
-      monitor = [
-        "DP-1, preferred, 0x0, 1"
-        "HDMI-A-1, preferred, 1920x0, 1"
-      ];
+      monitor = hyprlandHostSettings.monitor;
 
-      workspace = [
-        "1, monitor:DP-1, default:true"
-        "2, monitor:HDMI-A-1"
-      ];
+      workspace = hyprlandHostSettings.workspace;
 
       general = {
         border_size = 2;
@@ -211,7 +234,8 @@
           "tray"
           "memory"
           "pulseaudio"
-        ];
+        ]
+        ++ lib.optionals isWorkLaptop [ "network" ];
 
         "hyprland/workspaces" = {
           all-outputs = true;
@@ -248,6 +272,14 @@
             ];
           };
           on-click = "pavucontrol";
+        };
+
+        network = {
+          interval = 5;
+          format-wifi = "{signalStrength}% {essid}";
+          format-ethernet = "wired {ipaddr}";
+          format-disconnected = "no wifi";
+          tooltip-format = "{ifname} {ipaddr}/{cidr}";
         };
       };
     };
