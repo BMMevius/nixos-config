@@ -10,6 +10,7 @@
 }:
 
 {
+  boot.loader.systemd-boot.enable = true;
   imports = [
     # Include the results of the hardware scan.
     ./storage.nix
