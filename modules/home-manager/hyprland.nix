@@ -9,30 +9,6 @@
 let
   hostName = osConfig.networking.hostName or "";
   isWorkLaptop = hostName == "laptop-bastiaan";
-
-  hyprlandHostSettings =
-    {
-      desktop = {
-        monitor = [
-          "DP-1, preferred, 0x0, 1"
-          "HDMI-A-1, preferred, 1920x0, 1"
-        ];
-
-        workspace = [
-          "1, monitor:DP-1, default:true"
-          "2, monitor:HDMI-A-1"
-        ];
-      };
-
-      "work-laptop" = {
-        monitor = [ ", preferred, auto, 1" ];
-        workspace = [ "1, default:true" ];
-      };
-    }
-    .${hostName} or {
-      monitor = [ ", preferred, auto, 1" ];
-      workspace = [ "1, default:true" ];
-    };
 in
 {
   wayland.windowManager.hyprland = {
@@ -46,10 +22,6 @@ in
     # Main hyprland configuration
     settings = {
       ecosystem.no_update_news = true;
-
-      monitor = hyprlandHostSettings.monitor;
-
-      workspace = hyprlandHostSettings.workspace;
 
       general = {
         border_size = 2;
@@ -225,6 +197,49 @@ in
 
       ];
     };
+  };
+
+  services.kanshi = {
+    enable = true;
+    settings = [
+      {
+        profile = {
+          name = "work-laptop";
+          outputs = [
+            {
+              criteria = "eDP-1";
+              status = "enable";
+              mode = "1920x1080";
+              scale = 1.0;
+            }
+          ];
+        };
+      }
+      {
+        profile = {
+          name = "sia";
+          outputs = [
+            {
+              criteria = "eDP-1";
+              status = "enable";
+              mode = "1920x1080";
+              scale = 1.0;
+              position = "3840,0";
+            }
+            {
+              criteria = "Iiyama North America PL2492HN 1178622919239";
+              status = "enable";
+              position = "1920,0";
+            }
+            {
+              criteria = "Iiyama North America PLX2783H 1155904823535";
+              status = "enable";
+              position = "0,0";
+            }
+          ];
+        };
+      }
+    ];
   };
 
   programs.waybar = {
