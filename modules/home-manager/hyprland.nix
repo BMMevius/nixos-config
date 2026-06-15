@@ -201,7 +201,8 @@ in
       windowrule = [
         "match:class ^(notification)$, match:title ^(Notification)$, no_focus true"
         "match:class ^(org.pulseaudio.pavucontrol)$, float true, center true, size 800 600"
-        "match:class ^(nm-connection-editor)$, center true"
+        "match:class ^(nm-connection-editor)$, float true, center true, size 980 720"
+        "match:class ^(nm-wifi-picker)$, float true, center true, size 980 720"
         "match:class ^(blueman-manager)$, float true, size 900 700"
         "match:class ^(nm-applet)$, float true"
         "match:class ^(file-roller)$, float true"
@@ -212,7 +213,6 @@ in
       exec-once = [
         "uwsm finalize WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
         "uwsm app -- ${pkgs.lxqt.lxqt-policykit}/bin/lxqt-policykit-agent"
-        "uwsm app -- ${pkgs.networkmanagerapplet}/bin/nm-applet --indicator"
         "uwsm app -- ${pkgs.kdePackages.kwallet-pam}/libexec/pam_kwallet_init"
         "uwsm app -- udiskie"
       ];
@@ -257,7 +257,7 @@ in
 
         memory = {
           interval = 1;
-          format = "{used} / {total} ({percent}%)";
+          format = "{used} / {total} ({percentage}%)";
         };
 
         pulseaudio = {
@@ -285,7 +285,7 @@ in
           format-ethernet = "wired {ipaddr}";
           format-disconnected = "no wifi";
           tooltip-format = "{ifname} {ipaddr}/{cidr} | left click: select wifi";
-          on-click = "kitty -e nmtui connect";
+          on-click = "nm-wifi-picker";
           on-click-right = "nm-connection-editor";
         };
       };
@@ -327,15 +327,69 @@ in
     '';
   };
 
+  # Ensure nm-applet (NetworkManager secret agent) is running early
+  systemd.user.services.nm-applet = {
+    Unit = {
+      Description = "Network Manager applet (secret agent for Wi-Fi keyring storage)";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session-pre.target" ];
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "dbus";
+      BusName = "org.freedesktop.nm_applet";
+      ExecStart = "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator";
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+  };
+
   # Install additional hyprland-related tools
-  home.packages = with pkgs-unstable; [
-    pavucontrol # GUI for audio inputs/outputs dropdown
-    lxqt.lxqt-policykit # Required for mounting disks without root privileges
-    hyprlock
-    hypridle
-    kitty
-    fuzzel
-    networkmanagerapplet
-    udiskie
-  ];
+  home.packages =
+    let
+      nmWifiPicker = pkgs.writeShellScriptBin "nm-wifi-picker" ''
+        #!${pkgs.bash}/bin/bash
+        set -euo pipefail
+
+        # Wait for nm-applet (secret agent) to be ready on D-Bus
+        for i in {1..30}; do
+          if ${pkgs.dbus}/bin/dbus-send --session --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.ListNames 2>/dev/null | grep -q "nm-applet"; then
+            break
+          fi
+          if [ $i -eq 30 ]; then
+            echo "Warning: nm-applet secret agent not ready, passwords may be requested." >&2
+          fi
+          sleep 0.1
+        done
+
+        ${pkgs.kitty}/bin/kitty --class nm-wifi-picker -e ${pkgs.networkmanager}/bin/nmtui connect || exit 0
+
+        active_conn=""
+        while IFS=: read -r name type; do
+          if [ "$type" = "802-11-wireless" ]; then
+            active_conn="$name"
+            break
+          fi
+        done < <(${pkgs.networkmanager}/bin/nmcli -t -f NAME,TYPE connection show --active)
+
+        if [ -n "$active_conn" ]; then
+          # Keep Wi-Fi secrets in the running secret agent (KWallet via nm-applet).
+          ${pkgs.networkmanager}/bin/nmcli connection modify "$active_conn" 802-11-wireless-security.psk-flags 1
+        fi
+      '';
+    in
+    with pkgs-unstable;
+    [
+      pavucontrol # GUI for audio inputs/outputs dropdown
+      lxqt.lxqt-policykit # Required for mounting disks without root privileges
+      hyprlock
+      hypridle
+      kitty
+      fuzzel
+      networkmanagerapplet
+      nmWifiPicker
+      udiskie
+    ];
 }
