@@ -343,9 +343,8 @@ in
       WantedBy = [ "graphical-session.target" ];
     };
     Service = {
-      Type = "dbus";
-      BusName = "org.freedesktop.nm_applet";
-      ExecStart = "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator";
+      Type = "simple";
+      ExecStart = "${pkgs.networkmanagerapplet}/bin/nm-applet";
       Restart = "on-failure";
       RestartSec = 5;
     };
@@ -360,7 +359,7 @@ in
 
         # Wait for nm-applet (secret agent) to be ready on D-Bus
         for i in {1..30}; do
-          if ${pkgs.dbus}/bin/dbus-send --session --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.ListNames 2>/dev/null | grep -q "nm-applet"; then
+          if ${pkgs.procps}/bin/pgrep -x nm-applet >/dev/null; then
             break
           fi
           if [ $i -eq 30 ]; then
