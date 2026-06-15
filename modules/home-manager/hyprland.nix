@@ -164,7 +164,7 @@ in
         "SUPER, F, togglefloating,"
         "SUPER, T, layoutmsg, togglesplit"
         "SUPER, L, exec, hyprlock"
-        "SUPER, Print, exec, flameshot-screenshot"
+        "SUPER, Print, exec, satty-screenshot"
 
         "SUPER, 1, workspace, 1"
         "SUPER, 2, workspace, 2"
@@ -213,7 +213,6 @@ in
         "match:class ^(blueman-manager)$, float true, size 900 700"
         "match:class ^(nm-applet)$, float true"
         "match:class ^(file-roller)$, float true"
-        "match:class ^(flameshot)$, float true"
         "opacity 0.95 0.95, match:class ^(kitty)$"
         "opacity 0.95 0.95, match:class ^(code)$"
       ];
@@ -338,7 +337,7 @@ in
 
   # Clipboard history daemons. wl-paste --watch without --type defaults to text/plain
   # and silently ignores binary MIME types, so two separate watchers are required:
-  # one for text and one for images (catches image/png from flameshot-screenshot).
+  # one for text and one for images (catches image/png from satty-screenshot).
   systemd.user.services.cliphist-text = {
     Unit = {
       Description = "cliphist text clipboard watcher";
@@ -424,21 +423,26 @@ in
           ${pkgs.networkmanager}/bin/nmcli connection modify "$active_conn" 802-11-wireless-security.psk-flags 1
         fi
       '';
-      # Flameshot has a broken clipboard implementation on Wayland/Hyprland: the image
-      # data gets truncated when flameshot copies it internally. Workaround from
-      # https://github.com/flameshot-org/flameshot/issues/3329: use --raw to pipe the
-      # image bytes to wl-copy directly, bypassing flameshot's clipboard code entirely.
-      flameshotScreenshot = pkgs.writeShellScriptBin "flameshot-screenshot" ''
+      sattyScreenshot = pkgs.writeShellScriptBin "satty-screenshot" ''
         #!${pkgs.bash}/bin/bash
         set -euo pipefail
         SCREENSHOTS_DIR="$HOME/Pictures/Screenshots"
         mkdir -p "$SCREENSHOTS_DIR"
-        DEST="$SCREENSHOTS_DIR/$(date '+%Y-%m-%d_%H-%M-%S').png"
-        # XDG_CURRENT_DESKTOP=sway makes flameshot use the grim adapter correctly.
-        # --raw outputs raw PNG bytes to stdout; pipe to wl-copy for a correct clipboard entry.
-        XDG_CURRENT_DESKTOP=sway ${pkgs.flameshot}/bin/flameshot gui --raw 2>/dev/null \
-          | tee "$DEST" \
-          | ${pkgs.wl-clipboard}/bin/wl-copy --type image/png
+        DEST="$SCREENSHOTS_DIR/%Y-%m-%d_%H-%M-%S.png"
+
+        # slurp works across all connected outputs, so region capture stays reliable
+        # on multi-monitor Wayland sessions. Satty then handles text and drawing.
+        GEOMETRY="$(${pkgs.slurp}/bin/slurp)"
+        [ -n "$GEOMETRY" ] || exit 0
+
+        ${pkgs.grim}/bin/grim -g "$GEOMETRY" - \
+          | ${pkgs.satty}/bin/satty \
+              --filename - \
+              --fullscreen \
+              --output-filename "$DEST" \
+              --copy-command "${pkgs.wl-clipboard}/bin/wl-copy --type image/png" \
+              --actions-on-enter save-to-clipboard,save-to-file \
+              --actions-on-escape exit
       '';
     in
     with pkgs;
@@ -451,18 +455,17 @@ in
       fuzzel
       networkmanagerapplet
       nmWifiPicker
-      flameshotScreenshot
+      sattyScreenshot
       udiskie
-      flameshot
-      grim # required by flameshot's wayland grim adapter
+      grim
+      slurp
+      satty
       cliphist
       wl-clipboard
     ];
 
-  # Enable flameshot's grim-based wayland adapter to allow screen capture under Hyprland.
-  xdg.configFile."flameshot/flameshot.ini".text = ''
-    [General]
-    useGrimAdapter=true
-    saveAfterCopy=true
+  xdg.configFile."satty/config.toml".text = ''
+    [general]
+    actions-on-escape = ["exit"]
   '';
 }
