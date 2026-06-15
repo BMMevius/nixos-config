@@ -188,7 +188,12 @@ in
         "opacity 0.95 0.95, match:class ^(kitty)$"
         "opacity 0.95 0.95, match:class ^(code)$"
       ];
-
+      
+      # Avoid selection-layer fade being captured in region screenshots.
+      layerrule = [
+        "match:namespace selection, no_anim on"
+      ];
+      
       exec-once = [
         "uwsm finalize WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
         "uwsm app -- ${pkgs.lxqt.lxqt-policykit}/bin/lxqt-policykit-agent"
@@ -445,19 +450,14 @@ in
         mkdir -p "$SCREENSHOTS_DIR"
         DEST="$SCREENSHOTS_DIR/%Y-%m-%d_%H-%M-%S.png"
 
-        # slurp works across all connected outputs, so region capture stays reliable
-        # on multi-monitor Wayland sessions. Satty then handles text and drawing.
-        GEOMETRY="$(${pkgs.slurp}/bin/slurp)"
-        [ -n "$GEOMETRY" ] || exit 0
-
-        ${pkgs.grim}/bin/grim -g "$GEOMETRY" - \
-          | ${pkgs.satty}/bin/satty \
-              --filename - \
-              --fullscreen \
-              --output-filename "$DEST" \
-              --copy-command "${pkgs.wl-clipboard}/bin/wl-copy --type image/png" \
-              --actions-on-enter save-to-clipboard,save-to-file \
-              --actions-on-escape exit
+        # Use hyprshot with raw output piped directly to Satty for fast capture
+        # and annotation. The -r flag outputs raw image data to stdout.
+        ${pkgs.hyprshot}/bin/hyprshot -m region -r -s 2>/dev/null | ${pkgs.satty}/bin/satty \
+            --filename - \
+            --output-filename "$DEST" \
+            --copy-command "${pkgs.wl-clipboard}/bin/wl-copy --type image/png" \
+            --actions-on-enter save-to-clipboard,save-to-file \
+            --actions-on-escape exit
       '';
     in
     with pkgs;
@@ -472,8 +472,7 @@ in
       nmWifiPicker
       sattyScreenshot
       udiskie
-      grim
-      slurp
+      hyprshot
       satty
       cliphist
       wl-clipboard
