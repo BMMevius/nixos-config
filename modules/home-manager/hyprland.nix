@@ -164,6 +164,7 @@ in
         "SUPER, F, togglefloating,"
         "SUPER, T, layoutmsg, togglesplit"
         "SUPER, L, exec, hyprlock"
+        "SUPER, Print, exec, flameshot gui"
 
         "SUPER, 1, workspace, 1"
         "SUPER, 2, workspace, 2"
@@ -211,6 +212,7 @@ in
         "match:class ^(blueman-manager)$, float true, size 900 700"
         "match:class ^(nm-applet)$, float true"
         "match:class ^(file-roller)$, float true"
+        "match:class ^(flameshot)$, float true"
         "opacity 0.95 0.95, match:class ^(kitty)$"
         "opacity 0.95 0.95, match:class ^(code)$"
       ];
@@ -384,7 +386,7 @@ in
         fi
       '';
     in
-    with pkgs-unstable;
+    with pkgs;
     [
       pavucontrol # GUI for audio inputs/outputs dropdown
       lxqt.lxqt-policykit # Required for mounting disks without root privileges
@@ -395,5 +397,13 @@ in
       networkmanagerapplet
       nmWifiPicker
       udiskie
+      flameshot
+      grim # required by flameshot's wayland grim adapter
     ];
+
+  # Enable flameshot's grim-based wayland adapter to allow screen capture under Hyprland.
+  xdg.configFile."flameshot/flameshot.ini".text = ''
+    [General]
+    useGrimAdapter=true
+  '';
 }
