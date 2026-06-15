@@ -209,6 +209,24 @@ in
     settings = [
       {
         profile = {
+          name = "desktop";
+          outputs = [
+            {
+              criteria = "LG Electronics MP59G 0x01010101";
+              status = "enable";
+              mode = "1920x1080";
+              position = "0,0";
+            }
+            {
+              criteria = "Philips Consumer Electronics Company PHILIPS FTV 0x01010101";
+              status = "enable";
+              position = "1920,0";
+            }
+          ];
+        };
+      }
+      {
+        profile = {
           name = "work-laptop";
           outputs = [
             {
