@@ -185,6 +185,11 @@ in
         "SUPER SHIFT, 8, movetoworkspace, 8"
         "SUPER SHIFT, 9, movetoworkspace, 9"
 
+        "SUPER ALT, Left, movecurrentworkspacetomonitor, l"
+        "SUPER ALT, Right, movecurrentworkspacetomonitor, r"
+        "SUPER ALT, Up, movecurrentworkspacetomonitor, u"
+        "SUPER ALT, Down, movecurrentworkspacetomonitor, d"
+
         "SUPER, S, togglespecialworkspace, magic"
         "SUPER SHIFT, S, movetoworkspace, special:magic"
 
