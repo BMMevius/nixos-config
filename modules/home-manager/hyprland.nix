@@ -211,6 +211,8 @@ in
 
       exec-once = [
         "uwsm finalize WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
+        "uwsm app -- ${pkgs.lxqt.lxqt-policykit}/bin/lxqt-policykit-agent"
+        "uwsm app -- ${pkgs.networkmanagerapplet}/bin/nm-applet --indicator"
         "uwsm app -- ${pkgs.kdePackages.kwallet-pam}/libexec/pam_kwallet_init"
         "uwsm app -- udiskie"
       ];
@@ -282,7 +284,9 @@ in
           format-wifi = "{signalStrength}% {essid}";
           format-ethernet = "wired {ipaddr}";
           format-disconnected = "no wifi";
-          tooltip-format = "{ifname} {ipaddr}/{cidr}";
+          tooltip-format = "{ifname} {ipaddr}/{cidr} | left click: select wifi";
+          on-click = "kitty -e nmtui connect";
+          on-click-right = "nm-connection-editor";
         };
       };
     };
@@ -331,6 +335,7 @@ in
     hypridle
     kitty
     fuzzel
+    networkmanagerapplet
     udiskie
   ];
 }
