@@ -164,7 +164,7 @@ in
         "SUPER, F, togglefloating,"
         "SUPER, T, layoutmsg, togglesplit"
         "SUPER, L, exec, hyprlock"
-        "SUPER, Print, exec, flameshot gui"
+        "SUPER, Print, exec, flameshot-screenshot"
 
         "SUPER, 1, workspace, 1"
         "SUPER, 2, workspace, 2"
@@ -197,6 +197,7 @@ in
         "CTRL ALT, T, exec, kitty"
         "SUPER, E, exec, dolphin"
         "SUPER, R, exec, fuzzel"
+        "SUPER, V, exec, cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"
       ];
 
       bindm = [
@@ -222,6 +223,7 @@ in
         "uwsm app -- ${pkgs.lxqt.lxqt-policykit}/bin/lxqt-policykit-agent"
         "uwsm app -- ${pkgs.kdePackages.kwallet-pam}/libexec/pam_kwallet_init"
         "uwsm app -- udiskie"
+
       ];
     };
   };
@@ -334,6 +336,43 @@ in
     '';
   };
 
+  # Clipboard history daemons. wl-paste --watch without --type defaults to text/plain
+  # and silently ignores binary MIME types, so two separate watchers are required:
+  # one for text and one for images (catches image/png from flameshot-screenshot).
+  systemd.user.services.cliphist-text = {
+    Unit = {
+      Description = "cliphist text clipboard watcher";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session-pre.target" ];
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --type text --watch ${pkgs.cliphist}/bin/cliphist store";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+  };
+
+  systemd.user.services.cliphist-image = {
+    Unit = {
+      Description = "cliphist image clipboard watcher";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session-pre.target" ];
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --type image --watch ${pkgs.cliphist}/bin/cliphist store";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+  };
+
   # Ensure nm-applet (NetworkManager secret agent) is running early
   systemd.user.services.nm-applet = {
     Unit = {
@@ -385,6 +424,22 @@ in
           ${pkgs.networkmanager}/bin/nmcli connection modify "$active_conn" 802-11-wireless-security.psk-flags 1
         fi
       '';
+      # Flameshot has a broken clipboard implementation on Wayland/Hyprland: the image
+      # data gets truncated when flameshot copies it internally. Workaround from
+      # https://github.com/flameshot-org/flameshot/issues/3329: use --raw to pipe the
+      # image bytes to wl-copy directly, bypassing flameshot's clipboard code entirely.
+      flameshotScreenshot = pkgs.writeShellScriptBin "flameshot-screenshot" ''
+        #!${pkgs.bash}/bin/bash
+        set -euo pipefail
+        SCREENSHOTS_DIR="$HOME/Pictures/Screenshots"
+        mkdir -p "$SCREENSHOTS_DIR"
+        DEST="$SCREENSHOTS_DIR/$(date '+%Y-%m-%d_%H-%M-%S').png"
+        # XDG_CURRENT_DESKTOP=sway makes flameshot use the grim adapter correctly.
+        # --raw outputs raw PNG bytes to stdout; pipe to wl-copy for a correct clipboard entry.
+        XDG_CURRENT_DESKTOP=sway ${pkgs.flameshot}/bin/flameshot gui --raw 2>/dev/null \
+          | tee "$DEST" \
+          | ${pkgs.wl-clipboard}/bin/wl-copy --type image/png
+      '';
     in
     with pkgs;
     [
@@ -396,14 +451,18 @@ in
       fuzzel
       networkmanagerapplet
       nmWifiPicker
+      flameshotScreenshot
       udiskie
       flameshot
       grim # required by flameshot's wayland grim adapter
+      cliphist
+      wl-clipboard
     ];
 
   # Enable flameshot's grim-based wayland adapter to allow screen capture under Hyprland.
   xdg.configFile."flameshot/flameshot.ini".text = ''
     [General]
     useGrimAdapter=true
+    saveAfterCopy=true
   '';
 }
