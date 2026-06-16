@@ -262,6 +262,30 @@ in
           ];
         };
       }
+      {
+        profile = {
+          name = "sisc1";
+          outputs = [
+            {
+              criteria = "eDP-1";
+              status = "enable";
+              mode = "1920x1080";
+              scale = 1.0;
+              position = "0,0";
+            }
+            {
+              criteria = "Iiyama North America PL2492HN 1178621002153";
+              status = "enable";
+              position = "1920,0";
+            }
+            {
+              criteria = "Iiyama North America PL2492HN 1178621002155";
+              status = "enable";
+              position = "3840,0";
+            }
+          ];
+        };
+      }
     ];
   };
 
