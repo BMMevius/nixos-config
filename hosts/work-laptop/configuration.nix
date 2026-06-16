@@ -26,6 +26,8 @@
   # Enable networking
   networking.networkmanager.enable = true;
   networking.nftables.enable = true;
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
 
   # Docker's bridge networking needs br_netfilter (it has no broken install hook).
   boot.kernelModules = [ "br_netfilter" ];

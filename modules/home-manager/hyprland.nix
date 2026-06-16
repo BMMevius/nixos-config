@@ -310,7 +310,10 @@ in
           "memory"
           "pulseaudio"
         ]
-        ++ lib.optionals isWorkLaptop [ "network" ];
+        ++ lib.optionals isWorkLaptop [
+          "network"
+          "bluetooth"
+        ];
 
         "hyprland/workspaces" = {
           all-outputs = true;
@@ -347,6 +350,19 @@ in
             ];
           };
           on-click = "pavucontrol";
+        };
+
+        bluetooth = {
+          format = "{status}";
+          format-disabled = "bt off";
+          format-no-controller = "no bt";
+          format-off = "bt off";
+          format-on = "bt on";
+          format-connected = "bt {num_connections}";
+          tooltip-format = "{controller_alias} {controller_address}";
+          tooltip-format-connected = "{device_enumerate}";
+          tooltip-format-enumerate-connected = "{device_alias} {device_address}";
+          on-click = "blueman-manager";
         };
 
         network = {
@@ -518,6 +534,9 @@ in
       satty
       cliphist
       wl-clipboard
+    ]
+    ++ lib.optionals isWorkLaptop [
+      blueman
     ];
 
   xdg.configFile."satty/config.toml".text = ''
