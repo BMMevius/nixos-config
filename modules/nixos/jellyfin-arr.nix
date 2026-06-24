@@ -33,6 +33,10 @@ in
     enable = true;
     openFirewall = true;
   };
+  services.flaresolverr = {
+    enable = true;
+    openFirewall = true;
+  };
 
   services.transmission = {
     enable = true;
@@ -58,12 +62,14 @@ in
       "radarr.service"
       "sonarr.service"
       "prowlarr.service"
+      "flaresolverr.service"
       "transmission.service"
     ];
     wants = [
       "radarr.service"
       "sonarr.service"
       "prowlarr.service"
+      "flaresolverr.service"
       "transmission.service"
     ];
     wantedBy = [ "multi-user.target" ];
@@ -93,6 +99,7 @@ in
       wait_for "http://localhost:7878/api/v3/system/status" "Radarr"
       wait_for "http://localhost:8989/api/v3/system/status" "Sonarr"
       wait_for "http://localhost:9696/api/v1/system/status" "Prowlarr"
+      wait_for "http://localhost:8191/" "FlareSolverr"
 
       radarr_key=$(get_key /var/lib/radarr/.config/Radarr/config.xml)
       sonarr_key=$(get_key /var/lib/sonarr/.config/NzbDrone/config.xml)
@@ -229,6 +236,67 @@ in
       #
       # ── Prowlarr ────────────────────────────────────────────────────
       #
+
+      flaresolverr_host="http://127.0.0.1:8191/"
+
+      # Upsert the "flare" Prowlarr tag and capture its integer ID
+      existing_tags=$(curl -sf -H "X-Api-Key: $prowlarr_key" http://localhost:9696/api/v1/tag)
+      flare_tag_id=$(echo "$existing_tags" | jq -r '.[] | select(.label == "flare") | .id')
+      if [ -z "$flare_tag_id" ]; then
+        flare_tag_id=$(jq -n '{label:"flare"}' \
+          | curl -sf -X POST -H "X-Api-Key: $prowlarr_key" \
+              -H "Content-Type: application/json" -d @- \
+              http://localhost:9696/api/v1/tag | jq -r '.id')
+        echo "Prowlarr: created tag 'flare' (id=$flare_tag_id)"
+      fi
+
+      proxies=$(curl -sf -H "X-Api-Key: $prowlarr_key" http://localhost:9696/api/v1/indexerProxy)
+      flaresolverr_proxy=$(echo "$proxies" | jq -c '[.[] | select(.implementation == "FlareSolverr" or .name == "FlareSolverr")] | .[0]')
+
+      if [ "$flaresolverr_proxy" = "null" ]; then
+        echo "Prowlarr: adding FlareSolverr indexer proxy"
+        jq -n --arg host "$flaresolverr_host" --argjson tag "$flare_tag_id" '{
+          name:"FlareSolverr",
+          fields:[
+            {name:"host",value:$host},
+            {name:"requestTimeout",value:60}
+          ],
+          implementationName:"FlareSolverr",implementation:"FlareSolverr",
+          configContract:"FlareSolverrSettings",tags:[$tag]
+        }' | curl -s -X POST -H "X-Api-Key: $prowlarr_key" \
+            -H "Content-Type: application/json" -d @- \
+            http://localhost:9696/api/v1/indexerProxy
+      else
+        current_host=$(echo "$flaresolverr_proxy" | jq -r '.fields[]? | select(.name == "host") | .value' | head -n1)
+        current_enabled=$(echo "$flaresolverr_proxy" | jq -r '.enable // false')
+        has_tag=$(echo "$flaresolverr_proxy" | jq --argjson tag "$flare_tag_id" '[.tags[] | select(. == $tag)] | length > 0')
+        if [ -z "$current_host" ] || ! echo "$current_host" | grep -Eq '^https?://' || [ "$current_enabled" != "true" ] || [ "$has_tag" != "true" ]; then
+          echo "Prowlarr: fixing FlareSolverr proxy host/enabled/tag state"
+          flaresolverr_proxy_id=$(echo "$flaresolverr_proxy" | jq -r '.id')
+          echo "$flaresolverr_proxy" | jq --arg host "$flaresolverr_host" --argjson tag "$flare_tag_id" '
+            .name = "FlareSolverr"
+            | .enable = true
+            | .implementationName = "FlareSolverr"
+            | .implementation = "FlareSolverr"
+            | .configContract = "FlareSolverrSettings"
+            | .tags = ((.tags // []) | if any(.[]; . == $tag) then . else . + [$tag] end)
+            | .fields = (
+                (.fields // [])
+                | map(
+                    if .name == "host" then .value = $host
+                    elif .name == "requestTimeout" then .value = 60
+                    elif .name == "tags" then empty
+                    else .
+                    end
+                  )
+                | (if any(.[]; .name == "host") then . else . + [{name:"host",value:$host}] end)
+                | (if any(.[]; .name == "requestTimeout") then . else . + [{name:"requestTimeout",value:60}] end)
+              )
+          ' | curl -s -X PUT -H "X-Api-Key: $prowlarr_key" \
+              -H "Content-Type: application/json" -d @- \
+              "http://localhost:9696/api/v1/indexerProxy/$flaresolverr_proxy_id"
+        fi
+      fi
 
       apps=$(curl -sf -H "X-Api-Key: $prowlarr_key" http://localhost:9696/api/v1/applications)
 
