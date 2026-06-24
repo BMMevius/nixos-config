@@ -33,6 +33,7 @@
         };
         modules = [
           ./hosts/desktop/configuration.nix
+          ./modules/nixos/tailscale.nix
           ./modules/nixos/boot.nix
           ./modules/nixos/firefox.nix
           ./modules/graphics/gtx970.nix
