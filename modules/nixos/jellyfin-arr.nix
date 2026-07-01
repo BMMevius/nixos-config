@@ -33,6 +33,14 @@ in
     enable = true;
     openFirewall = true;
   };
+
+  # Restrict Prowlarr to IPv4 to prevent SSL certificate name mismatches.
+  # RemoteCertificateNameMismatch + RemoteCertificateChainErrors is caused by
+  # IPv6 routing to CDN endpoints that serve a certificate for a different domain.
+  systemd.services.prowlarr.serviceConfig.RestrictAddressFamilies = [
+    "AF_INET"
+    "AF_UNIX"
+  ];
   services.flaresolverr = {
     enable = true;
     openFirewall = true;
