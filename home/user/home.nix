@@ -24,6 +24,9 @@
   ++ lib.optionals (osConfig.networking.hostName == "desktop") [
     ../../modules/home-manager/discord.nix
     ../../modules/home-manager/strawberry.nix
+  ]
+  ++ lib.optionals (osConfig.networking.hostName == "laptop-bastiaan") [
+    ../../modules/home-manager/azure-cli.nix
   ];
 
   home.username = "bastiaan";
