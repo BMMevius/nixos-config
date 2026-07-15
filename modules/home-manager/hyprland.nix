@@ -286,6 +286,56 @@ in
           ];
         };
       }
+      {
+        profile = {
+          name = "sisc2";
+          outputs = [
+            {
+              criteria = "eDP-1";
+              status = "enable";
+              mode = "1920x1080";
+              scale = 1.0;
+              position = "0,0";
+            }
+            {
+              criteria = "Philips Consumer Electronics Company PHL 243S7 UHB1829008198";
+              status = "enable";
+              position = "1920,0";
+            }
+            {
+              criteria = "Philips Consumer Electronics Company PHL 243S7 UHB1713008486";
+              status = "enable";
+              position = "3840,0";
+            }
+          ];
+        };
+      }
+      {
+        profile = {
+          name = "koen";
+          outputs = [
+            {
+              criteria = "eDP-1";
+              status = "enable";
+              mode = "1920x1080";
+              scale = 1.0;
+              position = "0,0";
+            }
+            {
+              criteria = "Dell Inc. DELL P2418D MY3ND96B0ATT";
+              status = "enable";
+              position = "1920,0";
+              mode = "2560x1440";
+            }
+            {
+              criteria = "Dell Inc. DELL P2418D MY3ND96B0CDT";
+              status = "enable";
+              position = "4480,0";
+              mode = "2560x1440";
+            }
+          ];
+        };
+      }
     ];
   };
 
