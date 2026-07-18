@@ -34,6 +34,43 @@ in
     openFirewall = true;
   };
 
+  systemd.services.jellyfin-kodi-sync-queue = {
+    description = "Installeer Jellyfin Kodi Sync Queue plugin";
+
+    before = [ "jellyfin.service" ];
+    wantedBy = [ "jellyfin.service" ];
+
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+
+    serviceConfig = {
+      Type = "oneshot";
+      # User = "jellyfin";
+      # Group = "jellyfin";
+      RemainAfterExit = true;
+    };
+
+    script =
+      let
+        kodiSyncPlugin = pkgs.fetchzip {
+          url = "https://github.com/jellyfin/jellyfin-plugin-kodisyncqueue/releases/download/v15/kodi-sync-queue_15.0.0.0.zip";
+          stripRoot = false;
+          sha256 = "sha256-xtlG3UQ/WClt/Hvxe+oId2CeJ+PWMDXBUJXh5+k+mZQ=";
+        };
+      in
+      ''
+        PLUGIN_DIR="/var/lib/jellyfin/plugins/KodiSyncQueue"
+
+        rm -rf "$PLUGIN_DIR"
+        mkdir -p "$PLUGIN_DIR"
+
+        cp -r "${kodiSyncPlugin}" "$PLUGIN_DIR"
+
+        chown -R jellyfin:jellyfin "$PLUGIN_DIR"
+        chmod -R 755 "$PLUGIN_DIR"
+      '';
+  };
+
   # Restrict Prowlarr to IPv4 to prevent SSL certificate name mismatches.
   # RemoteCertificateNameMismatch + RemoteCertificateChainErrors is caused by
   # IPv6 routing to CDN endpoints that serve a certificate for a different domain.
