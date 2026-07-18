@@ -45,6 +45,19 @@
   # Enable networking
   networking.networkmanager.enable = true;
 
+  # SSH server: allow login without SSH keys and with empty passwords
+  services.openssh = {
+    enable = true;
+    openFirewall = true;
+    settings = {
+      PasswordAuthentication = true;
+      KbdInteractiveAuthentication = false;
+      PubkeyAuthentication = false;
+      PermitEmptyPasswords = true;
+      PermitRootLogin = "no";
+    };
+  };
+
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
 
@@ -99,6 +112,7 @@
   users.users.bastiaan = {
     isNormalUser = true;
     description = "bastiaan";
+    password = "";
     shell = pkgs.fish;
     extraGroups = [
       "networkmanager"
