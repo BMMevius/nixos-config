@@ -125,6 +125,7 @@
   };
 
   # Enable fish system-wide (adds it to /etc/shells)
+  programs.ssh.startAgent = true;
   programs.fish.enable = true;
   programs.hyprland.enable = true;
   programs.hyprland.withUWSM = true;
