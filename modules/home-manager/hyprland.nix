@@ -83,6 +83,7 @@ in
       };
 
       input = {
+        numlock_by_default = true;
         kb_layout = "us";
         kb_variant = "";
         follow_mouse = 1;
@@ -188,12 +189,12 @@ in
         "opacity 0.95 0.95, match:class ^(kitty)$"
         "opacity 0.95 0.95, match:class ^(code)$"
       ];
-      
+
       # Avoid selection-layer fade being captured in region screenshots.
       layerrule = [
         "match:namespace selection, no_anim on"
       ];
-      
+
       exec-once = [
         "uwsm finalize WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
         "uwsm app -- ${pkgs.lxqt.lxqt-policykit}/bin/lxqt-policykit-agent"
