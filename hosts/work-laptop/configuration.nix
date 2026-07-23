@@ -129,7 +129,11 @@
   programs.fish.enable = true;
   programs.hyprland.enable = true;
   programs.hyprland.withUWSM = true;
-
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   boot.supportedFilesystems = [
