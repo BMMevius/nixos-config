@@ -337,6 +337,51 @@ in
           ];
         };
       }
+      {
+        profile = {
+          name = "ruben";
+          outputs = [
+            {
+              criteria = "eDP-1";
+              status = "enable";
+              mode = "1920x1080";
+              scale = 1.0;
+              position = "0,0";
+            }
+            {
+              criteria = "Iiyama North America PL2492HN 1178623011005";
+              status = "enable";
+              position = "1920,0";
+              mode = "1920x1080";
+            }
+            {
+              criteria = "Iiyama North America PL2492HN 1178623914147";
+              status = "enable";
+              position = "3840,0";
+              mode = "1920x1080";
+            }
+          ];
+        };
+      }
+      {
+        profile = {
+          name = "default-one-monitor";
+          outputs = [
+            {
+              criteria = "eDP-1";
+              status = "enable";
+              mode = "1920x1080";
+              scale = 1.0;
+              position = "0,0";
+            }
+            {
+              criteria = "*";
+              status = "enable";
+              mode = "1920x1080";
+            }
+          ];
+        };
+      }
     ];
   };
 
