@@ -2,6 +2,7 @@
   config,
   nixpkgs-unstable,
   pkgs,
+  lib,
   ...
 }:
 
@@ -24,10 +25,12 @@ in
   services.sonarr = {
     enable = true;
     openFirewall = true;
+    group = "media";
   };
   services.radarr = {
     enable = true;
     openFirewall = true;
+    group = "media";
   };
   services.prowlarr = {
     enable = true;
@@ -86,6 +89,7 @@ in
   services.transmission = {
     enable = true;
     openFirewall = true;
+    group = "media";
     settings = {
       "download-dir" = "${downloadsRoot}/completed";
       "incomplete-dir" = "${downloadsRoot}/incomplete";
@@ -96,8 +100,22 @@ in
     };
   };
 
-  users.users.radarr.extraGroups = [ "transmission" ];
-  users.users.sonarr.extraGroups = [ "transmission" ];
+  users.groups.media.gid = 993;
+  users.users.jellyfin.extraGroups = [ "media" ];
+  users.users.sonarr.extraGroups = [
+    "transmission"
+    "media"
+  ];
+  users.users.radarr.extraGroups = [
+    "transmission"
+    "media"
+  ];
+  users.users.transmission.extraGroups = [ "media" ];
+
+  systemd.services.sonarr.serviceConfig.UMask = lib.mkForce "002";
+  systemd.services.radarr.serviceConfig.UMask = lib.mkForce "002";
+  systemd.services.jellyfin.serviceConfig.UMask = lib.mkForce "002";
+  systemd.services.transmission.serviceConfig.UMask = lib.mkForce "002";
 
   # Auto-wire Transmission + root folders into Radarr/Sonarr,
   # connect both to Prowlarr, and create Ultra-HD quality profiles.
@@ -164,10 +182,14 @@ in
       # Ensure media directories exist (ZFS may not have been mounted when tmpfiles ran)
       mkdir -p "${filmRoot}" "${seriesRoot}" "${downloadsRoot}/completed" "${downloadsRoot}/incomplete"
       mkdir -p "${downloadsRoot}/completed/radarr" "${downloadsRoot}/completed/sonarr"
-      # Some storage backends map ownership to nobody:nogroup; keep paths writable.
-      chmod 0777 "${filmRoot}" "${seriesRoot}" \
+      # Set group ownership and setgid so new files inherit the media group.
+      # On NFS mounts that squash ownership the chown may silently no-op.
+      chown :media "${filmRoot}" "${seriesRoot}" \
         "${downloadsRoot}" "${downloadsRoot}/completed" "${downloadsRoot}/incomplete" \
-        "${downloadsRoot}/completed/radarr" "${downloadsRoot}/completed/sonarr"
+        "${downloadsRoot}/completed/radarr" "${downloadsRoot}/completed/sonarr" 2>/dev/null || true
+      chmod 2775 "${filmRoot}" "${seriesRoot}" \
+        "${downloadsRoot}" "${downloadsRoot}/completed" "${downloadsRoot}/incomplete" \
+        "${downloadsRoot}/completed/radarr" "${downloadsRoot}/completed/sonarr" || true
 
       #
       # ── Radarr ──────────────────────────────────────────────────────
@@ -225,6 +247,16 @@ in
             http://localhost:7878/api/v3/qualityprofile
       fi
 
+      # Media management: hardlinks + auto-unmonitor deleted movies
+      radarr_mm=$(curl -sf -H "X-Api-Key: $radarr_key" http://localhost:7878/api/v3/config/mediamanagement)
+      if echo "$radarr_mm" | jq -e '.copyUsingHardlinks == false or .autoUnmonitorPreviouslyDownloadedMovies == false' > /dev/null; then
+        echo "Radarr: enabling hardlinks and auto-unmonitor"
+        echo "$radarr_mm" | jq '.copyUsingHardlinks = true | .autoUnmonitorPreviouslyDownloadedMovies = true' \
+          | curl -s -X PUT -H "X-Api-Key: $radarr_key" \
+              -H "Content-Type: application/json" -d @- \
+              http://localhost:7878/api/v3/config/mediamanagement
+      fi
+
       #
       # ── Sonarr ──────────────────────────────────────────────────────
       #
@@ -276,6 +308,16 @@ in
         }' | curl -s -X POST -H "X-Api-Key: $sonarr_key" \
             -H "Content-Type: application/json" -d @- \
             http://localhost:8989/api/v3/qualityprofile
+      fi
+
+      # Media management: hardlinks + auto-unmonitor deleted episodes
+      sonarr_mm=$(curl -sf -H "X-Api-Key: $sonarr_key" http://localhost:8989/api/v3/config/mediamanagement)
+      if echo "$sonarr_mm" | jq -e '.copyUsingHardlinks == false or .autoUnmonitorPreviouslyDownloadedEpisodes == false' > /dev/null; then
+        echo "Sonarr: enabling hardlinks and auto-unmonitor"
+        echo "$sonarr_mm" | jq '.copyUsingHardlinks = true | .autoUnmonitorPreviouslyDownloadedEpisodes = true | .deleteEmptyFolders = true' \
+          | curl -s -X PUT -H "X-Api-Key: $sonarr_key" \
+              -H "Content-Type: application/json" -d @- \
+              http://localhost:8989/api/v3/config/mediamanagement
       fi
 
       #
@@ -503,12 +545,24 @@ in
 
   systemd.tmpfiles.rules = [
     "d ${mediaRoot}              0755 root root -"
-    "d ${filmRoot}               0777 root root -"
-    "d ${seriesRoot}             0777 root root -"
-    "d ${downloadsRoot}          0777 root root -"
-    "d ${downloadsRoot}/completed 0777 root root -"
-    "d ${downloadsRoot}/completed/radarr 0777 root root -"
-    "d ${downloadsRoot}/completed/sonarr 0777 root root -"
-    "d ${downloadsRoot}/incomplete 0777 root root -"
+    "d ${filmRoot}               2775 radarr media -"
+    "d ${seriesRoot}             2775 sonarr media -"
+    "d ${downloadsRoot}          2775 transmission media -"
+    "d ${downloadsRoot}/completed 2775 transmission media -"
+    "d ${downloadsRoot}/completed/radarr 2775 radarr media -"
+    "d ${downloadsRoot}/completed/sonarr 2775 sonarr media -"
+    "d ${downloadsRoot}/incomplete 2775 transmission media -"
   ];
+
+  # Maintainerr: automated watched-content lifecycle manager.
+  # Connects to Jellyfin (watch history) and Sonarr/Radarr (delete via API)
+  # so deletions unmonitor items and prevent re-downloads.
+  virtualisation.oci-containers.containers.maintainerr = {
+    image = "jorenn95/maintainerr:latest";
+    ports = [ "6246:6246" ];
+    volumes = [ "/var/lib/maintainerr:/opt/data" ];
+    environment = {
+      TZ = "Europe/Amsterdam";
+    };
+  };
 }
