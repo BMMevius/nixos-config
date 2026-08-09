@@ -51,6 +51,8 @@
   };
 
   xdg.mime.enable = true;
+  environment.etc."xdg/menus/applications.menu".source = "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
+  environment.variables.XDG_MENU_PREFIX = "plasma-";
 
   # Allow wheel group users to modify NetworkManager connections without password prompts.
   # Uses two complementary rules: one for permission grants, one to handle secrets fetching.
