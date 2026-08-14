@@ -366,6 +366,32 @@ in
       }
       {
         profile = {
+          name = "bullpen-14";
+          outputs = [
+            {
+              criteria = "eDP-1";
+              status = "enable";
+              mode = "1920x1080";
+              scale = 1.0;
+              position = "0,0";
+            }
+            {
+              criteria = "Iiyama North America PL2492HN 1178621001721";
+              status = "enable";
+              position = "1920,0";
+              mode = "1920x1080";
+            }
+            {
+              criteria = "Iiyama North America PL2492HN 1178622612563";
+              status = "enable";
+              position = "3840,0";
+              mode = "1920x1080";
+            }
+          ];
+        };
+      }
+      {
+        profile = {
           name = "sia-4";
           outputs = [
             {
