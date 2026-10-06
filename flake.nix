@@ -85,6 +85,7 @@
           ./modules/nixos/common.nix
           ./modules/nixos/greetd.nix
           ./modules/nixos/uwsm.nix
+          ./modules/nixos/azure-cli-fix.nix
           # ./modules/disko/luks.nix
           disko.nixosModules.disko
           # home-manager integration
