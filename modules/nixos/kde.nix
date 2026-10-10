@@ -51,7 +51,13 @@
   };
 
   xdg.mime.enable = true;
-  environment.etc."xdg/menus/applications.menu".source = "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
+  environment.etc."xdg/kdeglobals".text = ''
+    [General]
+    TerminalApplication=kitty
+    TerminalService=kitty.desktop
+  '';
+  environment.etc."xdg/menus/applications.menu".source =
+    "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
   environment.variables.XDG_MENU_PREFIX = "plasma-";
 
   # Allow wheel group users to modify NetworkManager connections without password prompts.
@@ -75,6 +81,7 @@
   '';
 
   environment.systemPackages = with pkgs; [
+    kdePackages.ark
     kdePackages.kwalletmanager
     kdePackages.kwallet-pam
     kdePackages.kwallet

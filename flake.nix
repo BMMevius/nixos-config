@@ -38,6 +38,8 @@
           ./modules/nixos/firefox.nix
           ./modules/graphics/gtx970.nix
           ./modules/nixos/kde.nix
+          ./modules/nixos/zip.nix
+          ./modules/nixos/unzip.nix
           ./modules/nixos/l2tp-vpn.nix
           ./modules/nixos/docker.nix
           ./modules/nixos/docker-gpu.nix
@@ -78,6 +80,8 @@
           ./modules/nixos/boot.nix
           ./modules/nixos/firefox.nix
           ./modules/nixos/kde.nix
+          ./modules/nixos/zip.nix
+          ./modules/nixos/unzip.nix
           ./modules/nixos/l2tp-vpn.nix
           ./modules/nixos/docker.nix
           ./modules/nixos/docker-gpu.nix
