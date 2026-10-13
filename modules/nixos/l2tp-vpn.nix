@@ -33,4 +33,15 @@
     mkdir -p /usr/sbin
     ln -sf ${pkgs.strongswan}/sbin/ipsec /usr/sbin/ipsec
   '';
+
+  # Add support for ikev1 in strongswan
+  nixpkgs.overlays = [
+    (self: super: {
+      strongswan = super.strongswan.overrideAttrs (oldAttrs: {
+        configureFlags = (oldAttrs.configureFlags or [ ]) ++ [
+          "--enable-ikev1"
+        ];
+      });
+    })
+  ];
 }
