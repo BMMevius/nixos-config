@@ -26,14 +26,6 @@
     }
   '';
 
-  # KDE plasma-nm looks for the `ipsec` binary only in /usr/sbin and /sbin.
-  # On NixOS the binary lives in the Nix store, so we symlink it to /usr/sbin
-  # so that plasma-nm's L2tpIpsecWidget::hasIpsecDaemon() can find it.
-  system.activationScripts.ipsec-symlink = lib.stringAfter [ "usrbinenv" ] ''
-    mkdir -p /usr/sbin
-    ln -sf ${pkgs.strongswan}/sbin/ipsec /usr/sbin/ipsec
-  '';
-
   # Add support for ikev1 in strongswan
   nixpkgs.overlays = [
     (self: super: {
