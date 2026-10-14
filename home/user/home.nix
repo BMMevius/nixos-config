@@ -13,6 +13,7 @@
     ../../modules/home-manager/fonts.nix
     ../../modules/home-manager/git.nix
     ../../modules/home-manager/office.nix
+    ../../modules/home-manager/copilot.nix
     # ../../modules/home-manager/openboard.nix  # This module is currently broken due to FFMPEG and Qt6 being too new.
     ../../modules/home-manager/signal.nix
     ../../modules/home-manager/teams.nix
@@ -27,6 +28,7 @@
   ]
   ++ lib.optionals (osConfig.networking.hostName == "laptop-bastiaan") [
     ../../modules/home-manager/azure-cli.nix
+    ../../modules/home-manager/ghidra.nix
   ];
 
   home.username = "bastiaan";

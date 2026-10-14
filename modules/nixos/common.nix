@@ -1,5 +1,9 @@
-{ ... }:
+{ pkgs, ... }:
 {
+  services.envfs.enable = true;
+
+  environment.systemPackages = [ pkgs.bash ];
+
   nix.settings = {
     experimental-features = [
       "nix-command"
