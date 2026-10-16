@@ -6,7 +6,7 @@ let
 
     src = pkgs.fetchzip {
       url = "https://api.fontshare.com/v2/fonts/download/satoshi";
-      sha256 = "sha256-TEa7Og5gKyxSobVZMlz5GS2NLTh4OqZf6WQF/OTgQUg=";
+      sha256 = "sha256-z5KM+IH4234HCzkE/nZn9fg+vADXUlcddCoHsO06t0w=";
       stripRoot = false;
       extension = "zip";
     };
