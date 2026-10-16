@@ -487,6 +487,32 @@ in
           ];
         };
       }
+      {
+        profile = {
+          name = "bullpen-9";
+          outputs = [
+            {
+              criteria = "eDP-1";
+              status = "enable";
+              mode = "1920x1080";
+              scale = 1.0;
+              position = "0,0";
+            }
+            {
+              criteria = "Iiyama North America PLE2482H 1143874441629";
+              status = "enable";
+              position = "1920,0";
+              mode = "1920x1080";
+            }
+            {
+              criteria = "Iiyama North America PLE2482H 1143874441638";
+              status = "enable";
+              position = "3840,0";
+              mode = "1920x1080";
+            }
+          ];
+        };
+      }
     ];
   };
 
