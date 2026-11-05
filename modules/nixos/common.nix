@@ -1,6 +1,7 @@
 { pkgs, ... }:
 {
   services.envfs.enable = true;
+  programs.direnv.enable = true;
 
   environment.systemPackages = [ pkgs.bash ];
 
