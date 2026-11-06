@@ -48,6 +48,11 @@ in
     ${pkgs.crudini}/bin/crudini --set "${strawberryConfPath}" Collection group_by_version 1
     ${pkgs.crudini}/bin/crudini --set "${strawberryConfPath}" Covers types 'art_embedded, art_unset, art_manual, art_automatic'
     ${pkgs.crudini}/bin/crudini --set "${strawberryConfPath}" Covers save_type 3
+    ${pkgs.crudini}/bin/crudini --set "${strawberryConfPath}" OrganizeDialog format '%albumartist/%album/%disc-%track %title.%extension'
+    ${pkgs.crudini}/bin/crudini --set "${strawberryConfPath}" OrganizeDialog replace_spaces false
+    ${lib.optionalString (storageMountPoint != null) ''
+      ${pkgs.crudini}/bin/crudini --set "${strawberryConfPath}" OrganizeDialog destination "${collectionPath}"
+    ''}
   '';
 
   xdg.mimeApps = {
